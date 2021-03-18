@@ -122,7 +122,7 @@ bot.command('anime', (ctx) => {
 
 
                                 }
-                            }).catch(err => console.log(err));
+                            })
                         }
 
                         keyboard_sender(start, stop);
