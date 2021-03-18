@@ -22,6 +22,7 @@ bot.help((ctx) => {
 bot.command('anime', (ctx) => {
     var anime_name = ' ';
     let page = 1;
+    var Results = [];
 
     ctx.reply('///...Requesting Data From the Server...///');
     chatId = ctx.message.chat.id;
@@ -33,7 +34,7 @@ bot.command('anime', (ctx) => {
         ctx.reply("Kindly Follow The Procedure");
         ctx.reply("<Usage>: /anime <anime-name>");
     } else {
-        var Results = [];
+
         console.log(search);
         search.shift();
         anime_name = search.join(" ");
