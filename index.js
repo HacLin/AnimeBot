@@ -100,7 +100,7 @@ bot.command('anime', (ctx) => {
 
                             }
 
-                            keyboard.push([{ text: "Load More", callback_data: "#" }]);
+                            keyboard.push([{ text: "Load More", callback_data: "#-" + JSON.stringify(req) }]);
                             //console.log(keyboard);
                             ctx.reply(reply_message, {
                                 reply_markup: JSON.stringify({
@@ -110,21 +110,25 @@ bot.command('anime', (ctx) => {
                             }).catch(err => console.log(err))
                             console.log("Options Sent to the Chat");
                             bot.on('callback_query', (cbd) => {
-                                if (cbd.update.callback_query.data == "#") {
+                                let cbq = cbd.update.callback_query.data;
+                                cbq.split("-");
+
+                                if (cbq[0] == "#") {
                                     // keyboard.splice(-1, 1);
                                     // console.log(keyboard);
                                     // console.log(cbd.update.callback_query.message);
                                     // console.log(cbd.update.callback_query.from);
+
 
                                     cbd.deleteMessage(cbd.update.callback_query.message.id);
                                     // cbd.editMessageReplyMarkup().then(console.log("Loaded More Options")).catch(err => console.log(err))
                                     if (stop != 50) {
                                         stop += 10;
 
-                                        keyboard_sender(start, stop, req);
+                                        keyboard_sender(start, stop, parseInt(cbq[1]));
                                     } else {
                                         page += 1;
-                                        keyboard_sender(start, stop, req);
+                                        keyboard_sender(start, stop, parseInt(cbq[1]));
                                         stop = 10;
                                         DataReceiver(page, search);
 
