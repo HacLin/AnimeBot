@@ -1,0 +1,20 @@
+{
+    "name": "animebot",
+    "version": "1.0.0",
+    "description": "AnimeBot",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "nodemon index"
+    },
+    "author": "HacLin",
+    "license": "ISC",
+    "dependencies": {
+        "micro-bot": "^2.5.3",
+        "request": "^2.88.2",
+        "telegraf": "^4.2.1"
+    },
+    "devDependencies": {
+        "nodemon": "^2.0.7"
+    }
+}
