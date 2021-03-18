@@ -22,6 +22,7 @@ bot.help((ctx) => {
 bot.command('anime', (ctx) => {
     var anime_name = ' ';
     let page = 1;
+    let req = 1;
     var Results = [];
     while (Results.length > 0) {
         Results.pop();
@@ -95,7 +96,7 @@ bot.command('anime', (ctx) => {
                                 choices[i] = new Object();
                                 choices[i].Title = res.results[i].title;
                                 choices[i].Type = res.results[i].type;
-                                keyboard.push([{ text: choices[i].Title + ' : ' + choices[i].Type, callback_data: JSON.stringify(i) + '-' + JSON.stringify(page) + '-' + JSON.stringify(anime_name) }]);
+                                keyboard.push([{ text: choices[i].Title + ' : ' + choices[i].Type, callback_data: JSON.stringify(i) + '-' + JSON.stringify(page) + '-' + JSON.stringify(req) }]);
 
                             }
 
@@ -134,10 +135,10 @@ bot.command('anime', (ctx) => {
                                     // console.log(cbdata);
                                     let pageno = cbdata[1] - 1;
                                     let itemno = cbdata[0];
-                                    let reqno = JSON.stringify(cbdata[2]);
+                                    let reqno = cbdata[2];
                                     console.log("Data Sent\nPage No:" + pageno + "\nItem No:" + itemno);
                                     // console.log(Results[pageno].results[pageno].image_url);
-                                    cbd.replyWithPhoto(Results[reqno].results[itemno].image_url, { caption: "\n\nTitle :" + Results[reqno].results[itemno].title + '\n\nType :' + Results[reqno].results[itemno].type + '\n\nEpisodes :' + Results[reqno].results[itemno].episodes + '\n\nAiring:' + Results[reqno].results[itemno].airing + '\n\nRating :' + Results[reqno].results[itemno].score + '\n\nRated :' + Results[reqno].results[itemno].rated + '\n\n\n\n For more info visit the link:\n' + Results[reqno].results[itemno].url + '\n@AniList' })
+                                    cbd.replyWithPhoto(Results[reqno].results.results[itemno].image_url, { caption: "\n\nTitle :" + Results[reqno].results.results[itemno].title + '\n\nType :' + Results[reqno].results.results[itemno].type + '\n\nEpisodes :' + Results[reqno].results.results[itemno].episodes + '\n\nAiring:' + Results[reqno].results.results[itemno].airing + '\n\nRating :' + Results[reqno].results.results[itemno].score + '\n\nRated :' + Results[reqno].results.results[itemno].rated + '\n\n\n\n For more info visit the link:\n' + Results[reqno].results.results[itemno].url + '\n@AniList' })
                                         .catch(err => console.log(err));
 
 
