@@ -31,7 +31,7 @@ bot.command('anime', (ctx) => {
     if (search.length == 1) {
         console.log("No Arguments Passed");
         ctx.reply("Kindly Follow The Procedure");
-        ctx.reply("<Usage>: /movie <anime-name>or<manga-name>");
+        ctx.reply("<Usage>: /anime <anime-name>");
     } else {
         var Results = [];
 
