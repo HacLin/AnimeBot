@@ -47,9 +47,9 @@ bot.command('anime', (ctx) => {
         let temp = new Object();
         temp.anime = anime_name;
         if (!req.includes(temp))
-            req.unshift(temp);
+            req.push(temp);
         console.log(req);
-        // console.log(req.findIndex(x => x.anime = anime_name));
+        console.log(req.findIndex(x => x.anime = anime_name));
 
         function DataReceiver(page, search) {
             // console.log("Arguments Passed");
