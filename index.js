@@ -115,11 +115,13 @@ bot.command('anime', (ctx) => {
                                 console.log(cbdata);
 
                                 if (cbdata.length == 2) {
+                                    console.log("length compared");
                                     if (cbdata[0] == "#") {
-                                        // keyboard.splice(-1, 1);
-                                        // console.log(keyboard);
-                                        // console.log(cbd.update.callback_query.message);
-                                        // console.log(cbd.update.callback_query.from);
+                                        console.log("# compared")
+                                            // keyboard.splice(-1, 1);
+                                            // console.log(keyboard);
+                                            // console.log(cbd.update.callback_query.message);
+                                            // console.log(cbd.update.callback_query.from);
 
 
                                         cbd.deleteMessage(cbd.update.callback_query.message.id);
