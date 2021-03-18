@@ -40,7 +40,7 @@ bot.command('anime', (ctx) => {
         ctx.reply("<Usage>: /anime <anime-name>");
     } else {
 
-        console.log(search);
+        // console.log(search);
         search.shift();
         anime_name = search.join(" ").toLowerCase();
 
@@ -52,9 +52,9 @@ bot.command('anime', (ctx) => {
         // console.log(req.findIndex(x => x.anime = anime_name));
 
         function DataReceiver(page, search) {
-            console.log("Arguments Passed");
+            // console.log("Arguments Passed");
 
-            console.log(anime_name);
+            // console.log(anime_name);
             console.log("Searching for " + anime_name + ` page:${page}`);
             ctx.reply("///...Searching for " + anime_name + ` page:${page}` + " in the server...///");
             // ctx.reply("///...Choose From The Options Below ...///");
@@ -123,12 +123,13 @@ bot.command('anime', (ctx) => {
                                     // cbd.editMessageReplyMarkup().then(console.log("Loaded More Options")).catch(err => console.log(err))
                                     if (stop != 50) {
                                         stop += 10;
+                                        console.log(req.findIndex(x => x.anime = anime_name));
 
-                                        keyboard_sender(start, stop, cbdata[1]);
+                                        keyboard_sender(start, stop);
 
                                     } else {
                                         page += 1;
-                                        keyboard_sender(start, stop, cbdata[1]);
+                                        keyboard_sender(start, stop);
                                         stop = 10;
                                         DataReceiver(page, search);
 
@@ -140,7 +141,7 @@ bot.command('anime', (ctx) => {
                                     let pageno = cbdata[1] - 1;
                                     let itemno = cbdata[0];
                                     let reqno = cbdata[2];
-                                    console.log("Data Sent\nPage No:" + pageno + "\nItem No:" + itemno);
+                                    console.log("Data Sent\nPage No:" + pageno + "\nItem No:" + itemno + '\nReq No:' + reqno);
                                     // console.log(Results[pageno].results[pageno].image_url);
                                     cbd.replyWithPhoto(Results[reqno].results.results[itemno].image_url, { caption: "\n\nTitle :" + Results[reqno].results.results[itemno].title + '\n\nType :' + Results[reqno].results.results[itemno].type + '\n\nEpisodes :' + Results[reqno].results.results[itemno].episodes + '\n\nAiring:' + Results[reqno].results.results[itemno].airing + '\n\nRating :' + Results[reqno].results.results[itemno].score + '\n\nRated :' + Results[reqno].results.results[itemno].rated + '\n\n\n\n For more info visit the link:\n' + Results[reqno].results.results[itemno].url + '\n@AniList' })
                                         .catch(err => console.log(err));
@@ -151,7 +152,7 @@ bot.command('anime', (ctx) => {
                             })
                         }
 
-                        keyboard_sender(start, stop, req);
+                        keyboard_sender(start, stop);
 
 
                     }
