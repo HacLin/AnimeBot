@@ -20,11 +20,13 @@ bot.help((ctx) => {
 })
 
 var Results = [];
-let req = 0;
+var req = [];
+
 bot.command('anime', (ctx) => {
     var anime_name = ' ';
     let page = 1;
-    req += 1;
+
+
 
 
     ctx.reply('///...Requesting Data From the Server...///');
@@ -41,6 +43,10 @@ bot.command('anime', (ctx) => {
         console.log(search);
         search.shift();
         anime_name = search.join(" ");
+        let temp = new Object();
+        temp.anime = anime_name;
+        req.push(temp);
+        console.log(req.indexOf(anime_name));
 
         function DataReceiver(page, search) {
             console.log("Arguments Passed");
@@ -68,14 +74,7 @@ bot.command('anime', (ctx) => {
                     temp.results = res;
                     Results.push(temp);
                     console.log(Results);
-                    // console.log(Results[0].results.results[0].image_url);
-                    // console.log(Results);
-                    // console.log(Results[0]);
-                    // console.log(Results[0].results[0].image_url);
-                    // console.log(Results[0].res.results[0]);
-                    // console.log(Results);
-                    // console.log(Results[0]['results'][0][image_url]);
-                    // console.log(Results[0].results.image_url);
+
                     if (res.status == 404) {
                         ctx.reply(res.message + " Try Again Later!");
 
@@ -88,19 +87,19 @@ bot.command('anime', (ctx) => {
                         let stop = 10;
 
 
-                        function keyboard_sender(start, stop, req) {
+                        function keyboard_sender(start, stop, id) {
                             var keyboard = [];
                             var reply_message = `Loaded Page : ${page}` + '\n' + `Loaded Options : ${(page*50)-(50-stop)}`;
 
                             for (let i = start; i < stop; i++) {
                                 choices[i] = new Object();
-                                choices[i].Title = Results[(req - 1)].results.results[i].title;
-                                choices[i].Type = Results[(req - 1)].results.results[i].type;
-                                keyboard.push([{ text: choices[i].Title + ' : ' + choices[i].Type, callback_data: JSON.stringify(i) + '-' + JSON.stringify(page) + '-' + JSON.stringify(req) }]);
+                                choices[i].Title = Results[(req.indexOf(anime_name))].results.results[i].title;
+                                choices[i].Type = Results[(req.indexOf(anime_name))].results.results[i].type;
+                                keyboard.push([{ text: choices[i].Title + ' : ' + choices[i].Type, callback_data: JSON.stringify(i) + '-' + JSON.stringify(page) + '-' + JSON.stringify(req.indexOf(anime_name)) }]);
 
                             }
 
-                            keyboard.push([{ text: "Load More", callback_data: "#" + ' - ' + JSON.stringify(req) }]);
+                            keyboard.push([{ text: "Load More", callback_data: "#" + ' - ' + JSON.stringify(req.indexOf(anime_name)) }]);
                             //console.log(keyboard);
                             ctx.reply(reply_message, {
                                 reply_markup: JSON.stringify({
@@ -115,15 +114,7 @@ bot.command('anime', (ctx) => {
                                 console.log(cbdata);
 
                                 if (cbdata.length == 2) {
-                                    console.log("length compared");
-                                    let comp = cbdata[0];
-                                    //    console.log("# compared")
-                                    // keyboard.splice(-1, 1);
-                                    // console.log(keyboard);
-                                    // console.log(cbd.update.callback_query.message);
-                                    // console.log(cbd.update.callback_query.from);
-
-
+                                    console.log("length of the callback _array = 2");
                                     cbd.deleteMessage(cbd.update.callback_query.message.id);
                                     console.log("keyboard deleted");
                                     // cbd.editMessageReplyMarkup().then(console.log("Loaded More Options")).catch(err => console.log(err))
@@ -140,9 +131,9 @@ bot.command('anime', (ctx) => {
 
                                     }
 
-                                } else {
-
-                                    // console.log(cbdata);
+                                } else if (cbdata.length == 3) {
+                                    console.log("length of the callback_array = 3")
+                                        // console.log(cbdata);
                                     let pageno = cbdata[1] - 1;
                                     let itemno = cbdata[0];
                                     let reqno = cbdata[2] - 1;
@@ -153,6 +144,7 @@ bot.command('anime', (ctx) => {
 
 
                                 }
+
                             })
                         }
 
