@@ -61,14 +61,14 @@ bot.command('anime', (ctx) => {
                     //console.log(response);
                     // console.log(body);
                     var res = JSON.parse(body);
-                    Results.push([res]);
+                    Results.push(res);
                     // console.log(Results);
                     // console.log(Results[0]);
                     // console.log(Results[0].results[0].image_url);
                     // console.log(Results[0].res.results[0]);
                     console.log(Results[0].results);
                     // console.log(Results[0]['results'][0][image_url]);
-                    console.log(Results[0].results.image_url);
+                    // console.log(Results[0].results.image_url);
                     if (res.status == 404) {
                         ctx.reply(res.message + " Try Again Later!");
 
