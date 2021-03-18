@@ -100,7 +100,7 @@ bot.command('anime', (ctx) => {
 
                             }
 
-                            keyboard.push([{ text: "Load More", callback_data: "#-" + JSON.stringify(req) }]);
+                            keyboard.push([{ text: "Load More", callback_data: "# -" + JSON.stringify(req) }]);
                             //console.log(keyboard);
                             ctx.reply(reply_message, {
                                 reply_markup: JSON.stringify({
@@ -110,32 +110,33 @@ bot.command('anime', (ctx) => {
                             }).catch(err => console.log(err))
                             console.log("Options Sent to the Chat");
                             bot.on('callback_query', (cbd) => {
-                                let cbq = cbd.update.callback_query.data;
-                                cbq.split("-");
+                                let cbdata = cbd.update.callback_query.data;
+                                cbdata = cbdata.split("-");
 
-                                if (cbq[0] == "#") {
-                                    // keyboard.splice(-1, 1);
-                                    // console.log(keyboard);
-                                    // console.log(cbd.update.callback_query.message);
-                                    // console.log(cbd.update.callback_query.from);
+                                if (cbdata.length == 2) {
+                                    if (cbdata[0] == "#") {
+                                        // keyboard.splice(-1, 1);
+                                        // console.log(keyboard);
+                                        // console.log(cbd.update.callback_query.message);
+                                        // console.log(cbd.update.callback_query.from);
 
 
-                                    cbd.deleteMessage(cbd.update.callback_query.message.id);
-                                    // cbd.editMessageReplyMarkup().then(console.log("Loaded More Options")).catch(err => console.log(err))
-                                    if (stop != 50) {
-                                        stop += 10;
+                                        cbd.deleteMessage(cbd.update.callback_query.message.id);
+                                        // cbd.editMessageReplyMarkup().then(console.log("Loaded More Options")).catch(err => console.log(err))
+                                        if (stop != 50) {
+                                            stop += 10;
 
-                                        keyboard_sender(start, stop, parseInt(cbq[1]));
-                                    } else {
-                                        page += 1;
-                                        keyboard_sender(start, stop, parseInt(cbq[1]));
-                                        stop = 10;
-                                        DataReceiver(page, search);
+                                            keyboard_sender(start, stop, parseInt(cbq[1]));
+                                        } else {
+                                            page += 1;
+                                            keyboard_sender(start, stop, parseInt(cbq[1]));
+                                            stop = 10;
+                                            DataReceiver(page, search);
 
+                                        }
                                     }
                                 } else {
-                                    let cbdata = cbd.update.callback_query.data;
-                                    cbdata = cbdata.split("-");
+
                                     // console.log(cbdata);
                                     let pageno = cbdata[1] - 1;
                                     let itemno = cbdata[0];
