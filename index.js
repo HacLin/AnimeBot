@@ -94,8 +94,8 @@ bot.command('anime', (ctx) => {
 
                             for (let i = start; i < stop; i++) {
                                 choices[i] = new Object();
-                                choices[i].Title = Results[req].results.results[i].title;
-                                choices[i].Type = Results[req].results.results[i].type;
+                                choices[i].Title = Results[(req - 1)].results.results[i].title;
+                                choices[i].Type = Results[(req - 1)].results.results[i].type;
                                 keyboard.push([{ text: choices[i].Title + ' : ' + choices[i].Type, callback_data: JSON.stringify(i) + '-' + JSON.stringify(page) + '-' + JSON.stringify(req) }]);
 
                             }
