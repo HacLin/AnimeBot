@@ -69,7 +69,7 @@ bot.command('anime', (ctx) => {
                     // console.log(Results[0]);
                     // console.log(Results[0].results[0].image_url);
                     // console.log(Results[0].res.results[0]);
-                    console.log(Results[JSON.stringify(anime_name)].results);
+                    console.log(Results);
                     // console.log(Results[0]['results'][0][image_url]);
                     // console.log(Results[0].results.image_url);
                     if (res.status == 404) {
