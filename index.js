@@ -116,7 +116,7 @@ bot.command('anime', (ctx) => {
 
                                 if (cbdata.length == 2) {
                                     console.log("length compared");
-                                    if (cbdata[0] == "#") {
+                                    if (JSON.stringify(cbdata[0]) == "#") {
                                         console.log("# compared")
                                             // keyboard.splice(-1, 1);
                                             // console.log(keyboard);
