@@ -117,29 +117,29 @@ bot.command('anime', (ctx) => {
                                 if (cbdata.length == 2) {
                                     console.log("length compared");
                                     let comp = cbdata[0];
-                                    if (comp == '#') {
-                                        console.log("# compared")
-                                            // keyboard.splice(-1, 1);
-                                            // console.log(keyboard);
-                                            // console.log(cbd.update.callback_query.message);
-                                            // console.log(cbd.update.callback_query.from);
+                                    //    console.log("# compared")
+                                    // keyboard.splice(-1, 1);
+                                    // console.log(keyboard);
+                                    // console.log(cbd.update.callback_query.message);
+                                    // console.log(cbd.update.callback_query.from);
 
 
-                                        cbd.deleteMessage(cbd.update.callback_query.message.id);
-                                        // cbd.editMessageReplyMarkup().then(console.log("Loaded More Options")).catch(err => console.log(err))
-                                        if (stop != 50) {
-                                            stop += 10;
+                                    cbd.deleteMessage(cbd.update.callback_query.message.id);
+                                    console.log("keyboard deleted");
+                                    // cbd.editMessageReplyMarkup().then(console.log("Loaded More Options")).catch(err => console.log(err))
+                                    if (stop != 50) {
+                                        stop += 10;
 
-                                            keyboard_sender(start, stop, cbdata[1]);
+                                        keyboard_sender(start, stop, cbdata[1]);
 
-                                        } else {
-                                            page += 1;
-                                            keyboard_sender(start, stop, cbdata[1]);
-                                            stop = 10;
-                                            DataReceiver(page, search);
+                                    } else {
+                                        page += 1;
+                                        keyboard_sender(start, stop, cbdata[1]);
+                                        stop = 10;
+                                        DataReceiver(page, search);
 
-                                        }
                                     }
+
                                 } else {
 
                                     // console.log(cbdata);
