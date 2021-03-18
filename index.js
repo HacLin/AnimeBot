@@ -126,10 +126,10 @@ bot.command('anime', (ctx) => {
                                         if (stop != 50) {
                                             stop += 10;
 
-                                            keyboard_sender(start, stop, parseInt(cbq[1]));
+                                            keyboard_sender(start, stop, parseInt(cbdata[1]));
                                         } else {
                                             page += 1;
-                                            keyboard_sender(start, stop, parseInt(cbq[1]));
+                                            keyboard_sender(start, stop, parseInt(cbdata[1]));
                                             stop = 10;
                                             DataReceiver(page, search);
 
