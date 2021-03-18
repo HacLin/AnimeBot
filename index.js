@@ -135,7 +135,7 @@ bot.command('anime', (ctx) => {
                                     // console.log(cbdata);
                                     let pageno = cbdata[1] - 1;
                                     let itemno = cbdata[0];
-                                    let reqno = cbdata[2];
+                                    let reqno = cbdata[2] - 1;
                                     console.log("Data Sent\nPage No:" + pageno + "\nItem No:" + itemno);
                                     // console.log(Results[pageno].results[pageno].image_url);
                                     cbd.replyWithPhoto(Results[reqno].results.results[itemno].image_url, { caption: "\n\nTitle :" + Results[reqno].results.results[itemno].title + '\n\nType :' + Results[reqno].results.results[itemno].type + '\n\nEpisodes :' + Results[reqno].results.results[itemno].episodes + '\n\nAiring:' + Results[reqno].results.results[itemno].airing + '\n\nRating :' + Results[reqno].results.results[itemno].score + '\n\nRated :' + Results[reqno].results.results[itemno].rated + '\n\n\n\n For more info visit the link:\n' + Results[reqno].results.results[itemno].url + '\n@AniList' })
