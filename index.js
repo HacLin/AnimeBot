@@ -100,7 +100,7 @@ bot.command('anime', (ctx) => {
 
                             }
 
-                            keyboard.push([{ text: "Load More", callback_data: "# -" + JSON.stringify(req) }]);
+                            keyboard.push([{ text: "Load More", callback_data: "#" + ' - ' + JSON.stringify(req) }]);
                             //console.log(keyboard);
                             ctx.reply(reply_message, {
                                 reply_markup: JSON.stringify({
@@ -112,6 +112,7 @@ bot.command('anime', (ctx) => {
                             bot.on('callback_query', (cbd) => {
                                 let cbdata = cbd.update.callback_query.data;
                                 cbdata = cbdata.split("-");
+                                console.log(cbdata);
 
                                 if (cbdata.length == 2) {
                                     if (cbdata[0] == "#") {
@@ -126,10 +127,10 @@ bot.command('anime', (ctx) => {
                                         if (stop != 50) {
                                             stop += 10;
 
-                                            keyboard_sender(start, stop, parseInt(cbdata[1]));
+                                            keyboard_sender(start, stop, cbdata[1]);
                                         } else {
                                             page += 1;
-                                            keyboard_sender(start, stop, parseInt(cbdata[1]));
+                                            keyboard_sender(start, stop, cbdata[1]);
                                             stop = 10;
                                             DataReceiver(page, search);
 
