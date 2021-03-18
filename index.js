@@ -88,14 +88,14 @@ bot.command('anime', (ctx) => {
                         let stop = 10;
 
 
-                        function keyboard_sender(start, stop) {
+                        function keyboard_sender(start, stop, req) {
                             var keyboard = [];
                             var reply_message = `Loaded Page : ${page}` + '\n' + `Loaded Options : ${(page*50)-(50-stop)}`;
 
                             for (let i = start; i < stop; i++) {
                                 choices[i] = new Object();
-                                choices[i].Title = res.results[i].title;
-                                choices[i].Type = res.results[i].type;
+                                choices[i].Title = Results[req].results.results[i].title;
+                                choices[i].Type = Results[req].results.results[i].type;
                                 keyboard.push([{ text: choices[i].Title + ' : ' + choices[i].Type, callback_data: JSON.stringify(i) + '-' + JSON.stringify(page) + '-' + JSON.stringify(req) }]);
 
                             }
@@ -121,10 +121,10 @@ bot.command('anime', (ctx) => {
                                     if (stop != 50) {
                                         stop += 10;
 
-                                        keyboard_sender(start, stop);
+                                        keyboard_sender(start, stop, req);
                                     } else {
                                         page += 1;
-                                        keyboard_sender(start, stop);
+                                        keyboard_sender(start, stop, req);
                                         stop = 10;
                                         DataReceiver(page, search);
 
@@ -146,7 +146,7 @@ bot.command('anime', (ctx) => {
                             })
                         }
 
-                        keyboard_sender(start, stop);
+                        keyboard_sender(start, stop, req);
 
 
                     }
