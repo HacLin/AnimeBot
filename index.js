@@ -41,6 +41,7 @@ bot.command('anime', (ctx) => {
 
         function DataReceiver(page, search) {
             console.log("Arguments Passed");
+
             console.log(anime_name);
             console.log("Searching for " + anime_name + ` page:${page}`);
             ctx.reply("///...Searching for " + anime_name + ` page:${page}` + " in the server...///");
@@ -60,8 +61,8 @@ bot.command('anime', (ctx) => {
                     //console.log(response);
                     // console.log(body);
                     var res = JSON.parse(body);
-                    Results.push(res);
-                    // console.log(Results);
+                    Results.push([res]);
+                    console.log(Results);
                     // console.log(Results[0].results);
                     if (res.status == 404) {
                         ctx.reply(res.message + " Try Again Later!");
@@ -77,7 +78,7 @@ bot.command('anime', (ctx) => {
 
                         function keyboard_sender(start, stop) {
                             var keyboard = [];
-                            var reply_message = `Loaded Page : ${page}` + '\n' + `Loaded Options : ${stop}`;
+                            var reply_message = `Loaded Page : ${page}` + '\n' + `Loaded Options : ${(page*50)-(50-stop)}`;
 
                             for (let i = start; i < stop; i++) {
                                 choices[i] = new Object();
@@ -102,15 +103,19 @@ bot.command('anime', (ctx) => {
                                     // console.log(keyboard);
                                     // console.log(cbd.update.callback_query.message);
                                     // console.log(cbd.update.callback_query.from);
-                                    cbd.deleteMessage(cbd.update.callback_query.message.id);
 
+                                    cbd.deleteMessage(cbd.update.callback_query.message.id);
                                     // cbd.editMessageReplyMarkup().then(console.log("Loaded More Options")).catch(err => console.log(err))
                                     if (stop != 50) {
                                         stop += 10;
+
                                         keyboard_sender(start, stop);
                                     } else {
                                         page += 1;
+                                        keyboard_sender(start, stop);
+                                        stop = 10;
                                         DataReceiver(page, search);
+
                                     }
                                 } else {
                                     let cbdata = cbd.update.callback_query.data;
