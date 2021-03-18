@@ -34,11 +34,13 @@ bot.command('anime', (ctx) => {
         ctx.reply("<Usage>: /anime <anime-name>");
     } else {
         var Results = [];
+        console.log(search);
+        search.shift();
+        anime_name = search.join(" ");
 
         function DataReceiver(page, search) {
             console.log("Arguments Passed");
-            search.shift();
-            anime_name = search.join(" ");
+            console.log(anime_name);
             console.log("Searching for " + anime_name + ` page:${page}`);
             ctx.reply("///...Searching for " + anime_name + ` page:${page}` + " in the server...///");
             // ctx.reply("///...Choose From The Options Below ...///");
@@ -117,7 +119,7 @@ bot.command('anime', (ctx) => {
                                     let itemno = cbdata[0];
                                     console.log("Data Sent\nPage No:" + pageno + "\nItem No:" + itemno);
                                     // console.log(Results[pageno].results[pageno].image_url);
-                                    cbd.replyWithPhoto(Results[pageno].results[itemno].image_url, { caption: "\n\nTitle :" + Results[pageno].results[itemno].title + `(${anime_name.toUpperCase()})` + '\n\nType :' + Results[pageno].results[itemno].type + '\n\nEpisodes :' + Results[pageno].results[itemno].episodes + '\n\nStatus :' + Results[pageno].results[itemno].airing + '\n\nRating :' + Results[pageno].results[itemno].score + '\n\nRated :' + Results[pageno].results[itemno].rated + '\n\n\n\n For more info visit the link:\n' + Results[pageno].results[itemno].url + '\n@AniList' })
+                                    cbd.replyWithPhoto(Results[pageno].results[itemno].image_url, { caption: "\n\nTitle :" + Results[pageno].results[itemno].title + `(${anime_name.toUpperCase()})` + '\n\nType :' + Results[pageno].results[itemno].type + '\n\nEpisodes :' + Results[pageno].results[itemno].episodes + '\n\nAiring:' + Results[pageno].results[itemno].airing + '\n\nRating :' + Results[pageno].results[itemno].score + '\n\nRated :' + Results[pageno].results[itemno].rated + '\n\n\n\n For more info visit the link:\n' + Results[pageno].results[itemno].url + '\n@AniList' })
                                         .catch(err => console.log(err));
 
 
