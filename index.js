@@ -45,7 +45,7 @@ bot.command('anime', (ctx) => {
         anime_name = search.join(" ");
         let temp = new Object();
         temp.anime = anime_name;
-        req.push(temp);
+        req.unshift(temp);
         console.log(req.indexOf(anime_name));
 
         function DataReceiver(page, search) {
