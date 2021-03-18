@@ -42,12 +42,14 @@ bot.command('anime', (ctx) => {
 
         console.log(search);
         search.shift();
-        anime_name = search.join(" ");
+        anime_name = search.join(" ").toLowerCase();
+
         let temp = new Object();
         temp.anime = anime_name;
-        req.unshift(temp);
+        if (!req.includes(temp))
+            req.unshift(temp);
         console.log(req);
-        console.log(req.findIndex(x => x.anime = anime_name));
+        // console.log(req.findIndex(x => x.anime = anime_name));
 
         function DataReceiver(page, search) {
             console.log("Arguments Passed");
@@ -88,19 +90,19 @@ bot.command('anime', (ctx) => {
                         let stop = 10;
 
 
-                        function keyboard_sender(start, stop, id) {
+                        function keyboard_sender(start, stop) {
                             var keyboard = [];
                             var reply_message = `Loaded Page : ${page}` + '\n' + `Loaded Options : ${(page*50)-(50-stop)}`;
 
                             for (let i = start; i < stop; i++) {
                                 choices[i] = new Object();
-                                choices[i].Title = Results[(req.indexOf(anime_name))].results.results[i].title;
-                                choices[i].Type = Results[(req.indexOf(anime_name))].results.results[i].type;
-                                keyboard.push([{ text: choices[i].Title + ' : ' + choices[i].Type, callback_data: JSON.stringify(i) + '-' + JSON.stringify(page) + '-' + JSON.stringify(req.indexOf(anime_name)) }]);
+                                choices[i].Title = Results[req.findIndex(x => x.anime = anime_name)].results.results[i].title;
+                                choices[i].Type = Results[req.findIndex(x => x.anime = anime_name)].results.results[i].type;
+                                keyboard.push([{ text: choices[i].Title + ' : ' + choices[i].Type, callback_data: JSON.stringify(i) + '-' + JSON.stringify(page) + '-' + JSON.stringify(req.findIndex(x => x.anime = anime_name)) }]);
 
                             }
 
-                            keyboard.push([{ text: "Load More", callback_data: "#" + ' - ' + JSON.stringify(req.indexOf(anime_name)) }]);
+                            keyboard.push([{ text: "Load More", callback_data: "#" }]);
                             //console.log(keyboard);
                             ctx.reply(reply_message, {
                                 reply_markup: JSON.stringify({
@@ -114,7 +116,7 @@ bot.command('anime', (ctx) => {
                                 cbdata = cbdata.split("-");
                                 console.log(cbdata);
 
-                                if (cbdata.length == 2) {
+                                if (cbdata == '#') {
                                     console.log("length of the callback _array = 2");
                                     cbd.deleteMessage(cbd.update.callback_query.message.id);
                                     console.log("keyboard deleted");
@@ -137,7 +139,7 @@ bot.command('anime', (ctx) => {
                                         // console.log(cbdata);
                                     let pageno = cbdata[1] - 1;
                                     let itemno = cbdata[0];
-                                    let reqno = cbdata[2] - 1;
+                                    let reqno = cbdata[2];
                                     console.log("Data Sent\nPage No:" + pageno + "\nItem No:" + itemno);
                                     // console.log(Results[pageno].results[pageno].image_url);
                                     cbd.replyWithPhoto(Results[reqno].results.results[itemno].image_url, { caption: "\n\nTitle :" + Results[reqno].results.results[itemno].title + '\n\nType :' + Results[reqno].results.results[itemno].type + '\n\nEpisodes :' + Results[reqno].results.results[itemno].episodes + '\n\nAiring:' + Results[reqno].results.results[itemno].airing + '\n\nRating :' + Results[reqno].results.results[itemno].score + '\n\nRated :' + Results[reqno].results.results[itemno].rated + '\n\n\n\n For more info visit the link:\n' + Results[reqno].results.results[itemno].url + '\n@AniList' })
