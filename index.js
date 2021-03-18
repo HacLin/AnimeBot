@@ -64,7 +64,7 @@ bot.command('anime', (ctx) => {
                     //console.log(response);
                     // console.log(body);
                     var res = JSON.parse(body);
-                    Results[req] = new Object();
+                    Results = new Object();
                     Results[req].results = res;
                     console.log(Results);
                     // console.log(Results[0].results.results[0].image_url);
@@ -72,7 +72,7 @@ bot.command('anime', (ctx) => {
                     // console.log(Results[0]);
                     // console.log(Results[0].results[0].image_url);
                     // console.log(Results[0].res.results[0]);
-                    console.log(Results);
+                    // console.log(Results);
                     // console.log(Results[0]['results'][0][image_url]);
                     // console.log(Results[0].results.image_url);
                     if (res.status == 404) {
