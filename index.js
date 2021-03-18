@@ -64,7 +64,7 @@ bot.command('anime', (ctx) => {
                     //console.log(response);
                     // console.log(body);
                     var res = JSON.parse(body);
-                    Results.push(res);
+                    Results.push({ anime_name: res });
                     // console.log(Results);
                     // console.log(Results[0]);
                     // console.log(Results[0].results[0].image_url);
@@ -92,7 +92,7 @@ bot.command('anime', (ctx) => {
                                 choices[i] = new Object();
                                 choices[i].Title = res.results[i].title;
                                 choices[i].Type = res.results[i].type;
-                                keyboard.push([{ text: choices[i].Title + ' : ' + choices[i].Type, callback_data: JSON.stringify(i) + '-' + JSON.stringify(page) }]);
+                                keyboard.push([{ text: choices[i].Title + ' : ' + choices[i].Type, callback_data: JSON.stringify(i) + '-' + JSON.stringify(page) + '-' + JSON.stringify(anime_name) }]);
 
                             }
 
@@ -131,9 +131,10 @@ bot.command('anime', (ctx) => {
                                     // console.log(cbdata);
                                     let pageno = cbdata[1] - 1;
                                     let itemno = cbdata[0];
+                                    let reqno = cbdata[2];
                                     console.log("Data Sent\nPage No:" + pageno + "\nItem No:" + itemno);
                                     // console.log(Results[pageno].results[pageno].image_url);
-                                    cbd.replyWithPhoto(Results[pageno].results[itemno].image_url, { caption: "\n\nTitle :" + Results[pageno].results[itemno].title + '\n\nType :' + Results[pageno].results[itemno].type + '\n\nEpisodes :' + Results[pageno].results[itemno].episodes + '\n\nAiring:' + Results[pageno].results[itemno].airing + '\n\nRating :' + Results[pageno].results[itemno].score + '\n\nRated :' + Results[pageno].results[itemno].rated + '\n\n\n\n For more info visit the link:\n' + Results[pageno].results[itemno].url + '\n@AniList' })
+                                    cbd.replyWithPhoto(Results[reqno].results[itemno].image_url, { caption: "\n\nTitle :" + Results[reqno].results[itemno].title + '\n\nType :' + Results[reqno].results[itemno].type + '\n\nEpisodes :' + Results[reqno].results[itemno].episodes + '\n\nAiring:' + Results[reqno].results[itemno].airing + '\n\nRating :' + Results[reqno].results[itemno].score + '\n\nRated :' + Results[reqno].results[itemno].rated + '\n\n\n\n For more info visit the link:\n' + Results[reqno].results[itemno].url + '\n@AniList' })
                                         .catch(err => console.log(err));
 
 
