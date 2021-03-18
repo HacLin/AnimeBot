@@ -19,14 +19,13 @@ bot.help((ctx) => {
     ctx.reply('<Usage>: /anime <anime-name>or<series-name>');
 })
 
+var Results = [];
+let req = 0;
 bot.command('anime', (ctx) => {
     var anime_name = ' ';
     let page = 1;
-    let req = 1;
-    var Results = [];
-    while (Results.length > 0) {
-        Results.pop();
-    }
+    req += 1;
+
 
     ctx.reply('///...Requesting Data From the Server...///');
     chatId = ctx.message.chat.id;
@@ -65,10 +64,10 @@ bot.command('anime', (ctx) => {
                     //console.log(response);
                     // console.log(body);
                     var res = JSON.parse(body);
-                    Results[0] = new Object();
-                    Results[0].results = res;
+                    Results[req] = new Object();
+                    Results[req].results = res;
                     console.log(Results);
-                    console.log(Results[0].results.results[0].image_url);
+                    // console.log(Results[0].results.results[0].image_url);
                     // console.log(Results);
                     // console.log(Results[0]);
                     // console.log(Results[0].results[0].image_url);
