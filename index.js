@@ -64,8 +64,9 @@ bot.command('anime', (ctx) => {
                     //console.log(response);
                     // console.log(body);
                     var res = JSON.parse(body);
-                    Results = new Object();
-                    Results[req].results = res;
+                    let temp = new Object();
+                    temp.results = res;
+                    Results.push(temp);
                     console.log(Results);
                     // console.log(Results[0].results.results[0].image_url);
                     // console.log(Results);
