@@ -21,17 +21,34 @@ bot.help((ctx) => {
     ctx.reply('<Usage>: /anime <anime-name>');
 })
 
+
+//Global Variables
 var Results = [];
 var req = [];
 var anime_name = ' ';
 let page = 1;
-//Globalise the function
-function DataRequest() {
-    console.log("Searching for " + anime_name + ` page:${page}`);
-    ctx.reply("///...Searching for " + anime_name + ` page:${page}` + " in the server...///");
+var apicalls = [];
+apicalls = new Object();
 
-    var api_call = `https://api.jikan.moe/v3/search/anime?q=${anime_name}&page=${page}`;
-    console.log("Requesting Data as :" + api_call);
+
+ApiCallBuilder = (Item, page, type) => {
+
+    apicalls.anime = `https://api.jikan.moe/v3/search/anime?q=${Item}&page=${page}`
+    url = apicalls[type]
+    console.log("Builded API Call: " + url);
+    return (url);
+}
+
+
+
+//Globalise the function
+function DataRequest(Item, page, type) {
+    console.log("Searching for " + Item + ` page:${page}`);
+    // ctx.reply("///...Searching for " + Item + ` page:${page}` + " in the server...///");
+
+    console.log("Type: " + type);
+    var api_call = ApiCallBuilder(Item, page, type)
+    console.log("Requesting Data from: " + api_call);
     const url_options = {
         method: "GET",
         url: api_call
@@ -40,14 +57,12 @@ function DataRequest() {
 
         if (!error) {
             console.log("Data Received");
-            // console.log(Results.results);
-            //console.log(response);
-            // console.log(body);
             var res = JSON.parse(body);
             let temp = new Object();
             temp.results = res;
             Results.push(temp);
-            console.log(Results);
+            // console.log(Results);
+            console.log("Not Returned");
 
             if (res.status == 404) {
                 ctx.reply(res.message + " Try Again Later!");
@@ -84,7 +99,7 @@ function keyboard_sender(start, stop) {
 
 bot.command('anime', (ctx) => {
 
-    console.log(ctx);
+    // console.log(ctx);
     console.log(`Executing ${ctx.message.text}`)
     chatId = ctx.message.chat.id;
     console.log("Chat ID:" + chatId);
@@ -98,7 +113,9 @@ bot.command('anime', (ctx) => {
         ctx.reply("<Usage>: /anime <anime-name>");
     } else {
 
-
+        DataRequest(anime_name, page, "anime");
+        console.log("Returned")
+        console.log(Results);
 
     }
 });
