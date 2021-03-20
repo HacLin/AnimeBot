@@ -1,5 +1,7 @@
-const { Composer } = require('micro-bot');
-const bot = new Composer;
+// const { Composer } = require('micro-bot');
+// const bot = new Composer;
+const { Telegraf } = require('telegraf');
+const bot = new Telegraf("")
 const request = require('request');
 
 bot.start((ctx) => {
