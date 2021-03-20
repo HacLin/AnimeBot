@@ -21,7 +21,6 @@ bot.help((ctx) => {
     ctx.reply('<Usage>: /anime <anime-name>or<series-name>');
 })
 
-//DEV  BRANCH
 var Results = [];
 var req = [];
 
