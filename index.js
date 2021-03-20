@@ -1,7 +1,7 @@
 // const { Composer } = require('micro-bot');
 // const bot = new Composer;
 const { Telegraf } = require('telegraf');
-const bot = new Telegraf("")
+const bot = new Telegraf("1341590139:AAE_Zq-OKl4woXAwBKYkN1MDDRtEtosSz7E");
 const request = require('request');
 
 bot.start((ctx) => {
@@ -183,5 +183,5 @@ bot.command('anime', (ctx) => {
 
 });
 
-// bot.launch();
-module.exports = bot;
+bot.launch();
+// module.exports = bot;
