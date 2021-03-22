@@ -53,14 +53,18 @@ function DataRequest(Item, page, type) {
         method: "GET",
         url: api_call
     }
-    request(url_options, (error, response, body) => {
-
+    var retv = [];
+    request(url_options, async(error, response, body) => {
+        await body;
         if (!error) {
             console.log("Data Received");
             var res = JSON.parse(body);
             let temp = new Object();
             temp.results = res;
             Results.push(temp);
+            retv.push(temp);
+
+
             // console.log(Results);
             console.log("Not Returned");
 
@@ -69,8 +73,15 @@ function DataRequest(Item, page, type) {
 
             }
         }
+
     })
+
+    console.log(retv);
+    return (retv);
+
 }
+
+
 //Globalise the function
 function keyboard_sender(start, stop) {
     var keyboard = [];
@@ -97,7 +108,7 @@ function keyboard_sender(start, stop) {
 
 
 
-bot.command('anime', (ctx) => {
+bot.command('anime', async(ctx) => {
 
     // console.log(ctx);
     console.log(`Executing ${ctx.message.text}`)
@@ -113,10 +124,10 @@ bot.command('anime', (ctx) => {
         ctx.reply("<Usage>: /anime <anime-name>");
     } else {
 
-        DataRequest(anime_name, page, "anime");
+        var returnvalue = await DataRequest(anime_name, page, "anime");
         console.log("Returned")
-        console.log(Results);
-
+        console.log(Results)
+        console.log(returnvalue)
     }
 });
 
