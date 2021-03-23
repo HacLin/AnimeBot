@@ -53,31 +53,27 @@ function DataRequest(Item, page, type) {
         method: "GET",
         url: api_call
     }
-    var retv = [];
-    request(url_options, async(error, response, body) => {
-        await body;
-        if (!error) {
-            console.log("Data Received");
-            var res = JSON.parse(body);
-            let temp = new Object();
-            temp.results = res;
-            Results.push(temp);
-            retv.push(temp);
+    return new Promise(function(resolve, reject) {
 
+        request(url_options, (error, response, body) => {
 
-            // console.log(Results);
-            console.log("Not Returned");
+            if (!error) {
+                console.log("Data Received");
+                var res = JSON.parse(body);
+                let temp = new Object();
+                temp.results = res;
+                Results.push(temp);
+                if (res.status == 400) {
+                    reject(res.message);
+                }
+                resolve(res);
 
-            if (res.status == 404) {
-                ctx.reply(res.message + " Try Again Later!");
-
+                // console.log(Results); 
+                // console.log("Not Returned");
             }
-        }
-
+        })
     })
 
-    console.log(retv);
-    return (retv);
 
 }
 
@@ -125,7 +121,10 @@ bot.command('anime', async(ctx) => {
     } else {
 
         var returnvalue = await DataRequest(anime_name, page, "anime");
-        console.log("Returned")
+        // console.log("Returned")
+        if (returnvalue.status = 400) {
+            ctx.reply(returnvalue.message + ". Try Again Later!");
+        }
         console.log(Results)
         console.log(returnvalue)
     }
