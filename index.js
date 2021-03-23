@@ -30,7 +30,7 @@ let page = 1;
 var apicalls = [];
 apicalls = new Object();
 
-
+//Builds api calls for data receiving function 
 ApiCallBuilder = (Item, page, type) => {
 
     apicalls.anime = `https://api.jikan.moe/v3/search/anime?q=${Item}&page=${page}`
@@ -41,7 +41,7 @@ ApiCallBuilder = (Item, page, type) => {
 
 
 
-//Globalise the function
+//Globalised function for receiving data
 function DataRequest(Item, page, type) {
     console.log("Searching for " + Item + ` page:${page}`);
     // ctx.reply("///...Searching for " + Item + ` page:${page}` + " in the server...///");
@@ -64,7 +64,7 @@ function DataRequest(Item, page, type) {
                 temp.results = res;
                 Results.push(temp);
                 resolve(res);
-                console.log(res);
+                // console.log(res);
                 if (res.status == 400) {
                     reject(res.message);
                 }
@@ -108,12 +108,12 @@ function keyboard_sender(start, stop) {
 bot.command('anime', async(ctx) => {
 
     // console.log(ctx);
-    console.log(`Executing ${ctx.message.text}`)
+    console.log(`Executing the user command: ${ctx.message.text}`)
     chatId = ctx.message.chat.id;
     console.log("Chat ID:" + chatId);
     let search = ctx.message.text.split(" ");
     search.shift();
-    anime_name = search.join(" ").toLowerCase();
+    anime_name = search.join("").toLowerCase();
     // console.log(search);
     if (search.length == 0) {
         console.log("No Arguments Passed");
@@ -123,13 +123,12 @@ bot.command('anime', async(ctx) => {
 
         var returnvalue = await DataRequest(anime_name, page, "anime");
         // console.log("Returned")
-        if (returnvalue.status == 200) {
-            console.log(returnvalue)
-        } else if (returnvalue.status == 400) {
-            //keyboard code goes here//
-            ctx.reply(returnvalue.message + ". Try Again Later!");
-
+        console.log(returnvalue)
+        if (returnvalue.status == 400) {
+            ctx.reply(returnvalue.message + '. Try again Later!');
         }
+
+
         // console.log(Results)
 
     }
