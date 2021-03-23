@@ -58,15 +58,16 @@ function DataRequest(Item, page, type) {
         request(url_options, (error, response, body) => {
 
             if (!error) {
-                console.log("Data Received");
                 var res = JSON.parse(body);
+                console.log("Data Received");
                 let temp = new Object();
                 temp.results = res;
                 Results.push(temp);
+                resolve(res);
+                console.log(res);
                 if (res.status == 400) {
                     reject(res.message);
                 }
-                resolve(res);
 
                 // console.log(Results); 
                 // console.log("Not Returned");
@@ -122,11 +123,15 @@ bot.command('anime', async(ctx) => {
 
         var returnvalue = await DataRequest(anime_name, page, "anime");
         // console.log("Returned")
-        if (returnvalue.status = 400) {
+        if (returnvalue.status == 200) {
+            console.log(returnvalue)
+        } else if (returnvalue.status == 400) {
+            //keyboard code goes here//
             ctx.reply(returnvalue.message + ". Try Again Later!");
+
         }
-        console.log(Results)
-        console.log(returnvalue)
+        // console.log(Results)
+
     }
 });
 
