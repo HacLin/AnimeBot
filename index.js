@@ -29,6 +29,7 @@ var anime_name = ' ';
 let page = 1;
 var apicalls = [];
 apicalls = new Object();
+var reply_message = '';
 
 //Builds api calls for data receiving function 
 ApiCallBuilder = (Item, page, type) => {
@@ -42,11 +43,12 @@ ApiCallBuilder = (Item, page, type) => {
 
 
 //Globalised function for receiving data
-function DataRequest(Item, page, type) {
+DataRequest = (Item, page, type) => {
     console.log("Searching for " + Item + ` page:${page}`);
     // ctx.reply("///...Searching for " + Item + ` page:${page}` + " in the server...///");
 
     console.log("Type: " + type);
+
     var api_call = ApiCallBuilder(Item, page, type)
     console.log("Requesting Data from: " + api_call);
     const url_options = {
@@ -62,6 +64,8 @@ function DataRequest(Item, page, type) {
                 console.log("Data Received");
                 let temp = new Object();
                 temp.results = res;
+                temp.type = type;
+                temp.Item = Item;
                 Results.push(temp);
                 resolve(res);
                 // console.log(res);
@@ -80,26 +84,41 @@ function DataRequest(Item, page, type) {
 
 
 //Globalise the function
-function keyboard_sender(start, stop) {
+KeyboardBuilder = (Item, type, pageno, opcount, start, stop) => {
     var keyboard = [];
-    var reply_message = `Loaded Page : ${page}` + '\n' + `Loaded Options : ${(page*50)-(50-stop)}`;
-
+    var choices = [];
+    let Type = type;
+    let Items = Item;
+    console.log("Searching for " + Items + " as " + Type + " in the Results");
+    reply_message = `Loaded Page : ${pageno}` + '\n' + `Loaded Options : ${(pageno*opcount)-(opcount-stop)}`;
     for (let i = start; i < stop; i++) {
         choices[i] = new Object();
-        choices[i].Title = Results[req.findIndex(x => x.anime = anime_name)].results.results[i].title;
-        choices[i].Type = Results[req.findIndex(x => x.anime = anime_name)].results.results[i].type;
-        keyboard.push([{ text: choices[i].Title + ' : ' + choices[i].Type, callback_data: JSON.stringify(i) + '-' + JSON.stringify(page) + '-' + JSON.stringify(req.findIndex(x => x.anime = anime_name)) }]);
+        choices[i].Title = Results[Results.findIndex(x => { x.Type = type, x.Item = Item })].results.results[i].title;
+        choices[i].Type = Results[Results.findIndex(x => { x.Type = type, x.Item = Item })].results.results[i].type;
+        keyboard.push([{
+            text: choices[i].Title + ' : ' + choices[i].Type,
+            callback_data: JSON.stringify(pageno) + '-' + JSON.stringify(Results.findIndex(x => { x.Type = type, x.Item = Item }))
 
+        }]);
     }
-
     keyboard.push([{ text: "Load More", callback_data: "#" }]);
-    //console.log(keyboard);
-    ctx.reply(reply_message, {
-        reply_markup: JSON.stringify({
-            inline_keyboard: keyboard
+    console.log("Keyboard Builded :\n");
+    console.log(keyboard + '\n');
+    return (keyboard);
 
+}
+
+
+KeyboardSender = (repmsg, keydata, ctx) => {
+    ctx.reply(repmsg, {
+            reply_markup: JSON.stringify({
+                inline_keyboard: keydata
+
+            })
         })
-    }).catch(err => console.log(err))
+        .then(console.log(`Keyboard Sent to the chat ${ctx.message.chat.id}`))
+        .catch(err => console.log(err))
+
 }
 
 
@@ -123,9 +142,19 @@ bot.command('anime', async(ctx) => {
 
         var returnvalue = await DataRequest(anime_name, page, "anime");
         // console.log("Returned")
-        console.log(returnvalue)
+        // console.log(returnvalue)
+        console.log(Results);
         if (returnvalue.status == 400) {
             ctx.reply(returnvalue.message + '. Try again Later!');
+        } else {
+
+            let opcount = returnvalue.length;
+            let stop = 5;
+            let start = 0;
+            // let keyboard = KeyboardBuilder(anime_name, "anime", page, opcount, start, stop)
+            // KeyboardSender(reply_message, keyboard, ctx);
+
+            console.log(Results.findIndex(x => { x.type = "anime", x.Item = anime_name }));
         }
 
 
