@@ -64,8 +64,9 @@ DataRequest = (Item, page, type) => {
                 console.log("Data Received");
                 let temp = new Object();
                 temp.results = res;
-                temp.type = type;
-                temp.Item = Item;
+                // temp.type = type;
+                // temp.Item = Item;
+                temp.callbackdata = type + '-' + Item
                 Results.push(temp);
                 resolve(res);
                 // console.log(res);
@@ -87,21 +88,26 @@ DataRequest = (Item, page, type) => {
 KeyboardBuilder = (Item, type, pageno, opcount, start, stop) => {
     var keyboard = [];
     var choices = [];
-    let Type = type;
-    let Items = Item;
-    console.log("Searching for " + Items + " as " + Type + " in the Results");
+    let cbdata = type + '-' + Item;
+    // let Type = type;
+    // let Items = Item;
+    console.log("Searching for " + Item + " as " + type + " in the Results");
     reply_message = `Loaded Page : ${pageno}` + '\n' + `Loaded Options : ${(pageno*opcount)-(opcount-stop)}`;
     for (let i = start; i < stop; i++) {
         choices[i] = new Object();
-        choices[i].Title = Results[Results.findIndex(x => { x.Type = type, x.Item = Item })].results.results[i].title;
-        choices[i].Type = Results[Results.findIndex(x => { x.Type = type, x.Item = Item })].results.results[i].type;
+        choices[i].Title = Results[Results.findIndex(x => x.callbackdata == cbdata)].results.results[i].title;
+        choices[i].Type = Results[Results.findIndex(x => x.callbackdata == cbdata)].results.results[i].type;
         keyboard.push([{
             text: choices[i].Title + ' : ' + choices[i].Type,
-            callback_data: JSON.stringify(pageno) + '-' + JSON.stringify(Results.findIndex(x => { x.Type = type, x.Item = Item }))
+            callback_data: JSON.stringify(pageno) + '-' + JSON.stringify(Results.findIndex(x => x.callbackdata == cbdata)) + '-' + JSON.stringify(i)
 
         }]);
     }
-    keyboard.push([{ text: "Load More", callback_data: "#" }]);
+    keyboard.push([{
+        text: "Load More",
+        callback_data: pageno + '-' + Results.findIndex(x => x.callbackdata == cbdata)
+
+    }]);
     console.log("Keyboard Builded :\n");
     console.log(keyboard + '\n');
     return (keyboard);
@@ -148,13 +154,36 @@ bot.command('anime', async(ctx) => {
             ctx.reply(returnvalue.message + '. Try again Later!');
         } else {
 
-            let opcount = returnvalue.length;
+            let opcount = returnvalue.results.length;
             let stop = 5;
             let start = 0;
-            // let keyboard = KeyboardBuilder(anime_name, "anime", page, opcount, start, stop)
-            // KeyboardSender(reply_message, keyboard, ctx);
+            let keyboard = KeyboardBuilder(anime_name, "anime", page, opcount, start, stop)
+            KeyboardSender(reply_message, keyboard, ctx);
+            // let cbdata = 'anime-fullmetal'
+            // console.log(Results.findIndex(x => x.callbackdata == cbdata));
 
-            console.log(Results.findIndex(x => { x.type = "anime", x.Item = anime_name }));
+
+            bot.on('callback_query', (cbd) => {
+                const cbquery = cbd.update.callback_query.data;
+                // console.log(ctx.update.callback_query);
+                // console.log(ctx.update);
+                // console.log(ctx);
+                console.log("Received Callback Query Data :" + cbquery);
+                var cbdata = cbquery.split("-");
+                cbdata = cbdata.map((x) => { return parseInt(x, 10) })
+                console.log(cbdata);
+                if (cbdata.length == 2) {
+                    let media = Results[cbdata[1]].callbackdata.split('-')
+                    console.log(media);
+                    console.log("Loading More Options for " + Results[cbdata[1]].callbackdata)
+                    let keydata = KeyboardBuilder(media[1], media[0], cbdata[0], opcount, stop, stop += 5)
+                    KeyboardSender(reply_message, keydata, ctx);
+                }
+
+
+
+
+            })
         }
 
 
