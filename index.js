@@ -1,6 +1,6 @@
 // const { Composer } = require('micro-bot');
 // const bot = new Composer;
-const { Telegraf } = require('telegraf');
+const { Telegraf, TelegramError } = require('telegraf');
 const bot = new Telegraf("1341590139:AAE_Zq-OKl4woXAwBKYkN1MDDRtEtosSz7E");
 const request = require('request');
 
@@ -30,6 +30,7 @@ let page = 1;
 var apicalls = [];
 apicalls = new Object();
 var reply_message = '';
+
 
 //Builds api calls for data receiving function 
 ApiCallBuilder = (Item, page, type) => {
@@ -66,6 +67,7 @@ DataRequest = (Item, page, type) => {
                 temp.results = res;
                 // temp.type = type;
                 // temp.Item = Item;
+                temp.loaded = 0;
                 temp.callbackdata = type + '-' + Item
                 Results.push(temp);
                 resolve(res);
@@ -74,7 +76,7 @@ DataRequest = (Item, page, type) => {
                     reject(res.message);
                 }
 
-                // console.log(Results); 
+                console.log(Results);
                 // console.log("Not Returned");
             }
         })
@@ -108,6 +110,7 @@ KeyboardBuilder = (Item, type, pageno, opcount, start, stop) => {
         callback_data: pageno + '-' + Results.findIndex(x => x.callbackdata == cbdata)
 
     }]);
+    Results[Results.findIndex(x => x.callbackdata == cbdata)].loaded = stop;
     console.log("Keyboard Builded :\n");
     console.log(keyboard + '\n');
     return (keyboard);
@@ -149,7 +152,7 @@ bot.command('anime', async(ctx) => {
         var returnvalue = await DataRequest(anime_name, page, "anime");
         // console.log("Returned")
         // console.log(returnvalue)
-        console.log(Results);
+        // console.log(Results);
         if (returnvalue.status == 400) {
             ctx.reply(returnvalue.message + '. Try again Later!');
         } else {
@@ -175,8 +178,9 @@ bot.command('anime', async(ctx) => {
                 if (cbdata.length == 2) {
                     let media = Results[cbdata[1]].callbackdata.split('-')
                     console.log(media);
+                    let options = Results[cbdata[1]].loaded;
                     console.log("Loading More Options for " + Results[cbdata[1]].callbackdata)
-                    let keydata = KeyboardBuilder(media[1], media[0], cbdata[0], opcount, stop, stop += 5)
+                    let keydata = KeyboardBuilder(media[1], media[0], cbdata[0], opcount, options, options + 5)
                     KeyboardSender(reply_message, keydata, ctx);
                 }
 
