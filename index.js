@@ -198,6 +198,7 @@ bot.command('anime', async(ctx) => {
                 // console.log(ctx.update.callback_query);
                 // console.log(ctx.update);
                 // console.log(ctx);
+
                 console.log("Received Callback Query Data :" + cbquery);
                 var cbdata = cbquery.split("-");
                 cbdata = cbdata.map((x) => { return parseInt(x, 10) })
@@ -206,7 +207,9 @@ bot.command('anime', async(ctx) => {
                     let media = Results[cbdata[1]].callbackdata.split('-')
                         // console.log(media);
                     let options = Results[cbdata[1]].loaded;
-                    if (options > opcount) {
+                    // console.log(options);
+                    // console.log(opcount);
+                    if (options + 5 > opcount) {
                         console.log("Resource does not exist")
                         ctx.reply("Resource does not exist")
                     } else {
