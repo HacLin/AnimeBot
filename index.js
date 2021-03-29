@@ -1,6 +1,6 @@
 // const { Composer } = require('micro-bot');
 // const bot = new Composer;
-const { Telegraf, TelegramError } = require('telegraf');
+const { Telegraf } = require('telegraf');
 const bot = new Telegraf("1341590139:AAE_Zq-OKl4woXAwBKYkN1MDDRtEtosSz7E");
 const request = require('request');
 
