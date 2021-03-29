@@ -23,7 +23,8 @@ bot.help((ctx) => {
 
 
 //Global Variables
-var Results = [];
+var AnimeResults = [];
+var MovieResults = [];
 var req = [];
 var anime_name = ' ';
 let page = 1;
@@ -36,6 +37,7 @@ var reply_message = '';
 ApiCallBuilder = (Item, page, type) => {
 
     apicalls.anime = `https://api.jikan.moe/v3/search/anime?q=${Item}&page=${page}`
+    apicalls.movie = `https://www.omdbapi.com/?s=${Item}&apikey=7e218023&page=${page}`
     url = apicalls[type]
     console.log("Builded API Call: " + url);
     return (url);
@@ -69,7 +71,10 @@ DataRequest = (Item, page, type) => {
                 // temp.Item = Item;
                 temp.loaded = 0;
                 temp.callbackdata = type + '-' + Item
-                Results.push(temp);
+                if (type == "anime")
+                    AnimeResults.push(temp);
+                if (type == "movie")
+                    MovieResults.push(temp);
                 resolve(res);
                 // console.log(res);
                 if (res.status == 400) {
@@ -87,7 +92,7 @@ DataRequest = (Item, page, type) => {
 
 
 //Globalise the function
-KeyboardBuilder = (Item, type, pageno, opcount, start, stop) => {
+AnimeKeyboardBuilder = (Item, type, pageno, opcount, start, stop) => {
     var keyboard = [];
     var choices = [];
     let cbdata = type + '-' + Item;
@@ -97,20 +102,49 @@ KeyboardBuilder = (Item, type, pageno, opcount, start, stop) => {
     reply_message = 'Searching for : ' + Item + '\n' + `Loaded Options : ${(pageno*opcount)-(opcount-stop)}`;
     for (let i = start; i < stop; i++) {
         choices[i] = new Object();
-        choices[i].Title = Results[Results.findIndex(x => x.callbackdata == cbdata)].results.results[i].title;
-        choices[i].Type = Results[Results.findIndex(x => x.callbackdata == cbdata)].results.results[i].type;
+        choices[i].Title = AnimeResults[AnimeResults.findIndex(x => x.callbackdata == cbdata)].results.results[i].title;
+        choices[i].Type = AnimeResults[AnimeResults.findIndex(x => x.callbackdata == cbdata)].results.results[i].type;
         keyboard.push([{
             text: choices[i].Title + ' : ' + choices[i].Type,
-            callback_data: JSON.stringify(pageno) + '-' + JSON.stringify(Results.findIndex(x => x.callbackdata == cbdata)) + '-' + JSON.stringify(i)
+            callback_data: JSON.stringify(pageno) + '-' + JSON.stringify(AnimeResults.findIndex(x => x.callbackdata == cbdata)) + '-' + JSON.stringify(i)
 
         }]);
     }
     keyboard.push([{
         text: "Load More",
-        callback_data: pageno + '-' + Results.findIndex(x => x.callbackdata == cbdata)
+        callback_data: pageno + '-' + AnimeResults.findIndex(x => x.callbackdata == cbdata)
 
     }]);
-    Results[Results.findIndex(x => x.callbackdata == cbdata)].loaded = stop;
+    AnimeResults[AnimeResults.findIndex(x => x.callbackdata == cbdata)].loaded = stop;
+    console.log("Keyboard Builded :\n");
+    console.log(keyboard + '\n');
+    return (keyboard);
+
+}
+MovieKeyboardBuilder = (Item, type, pageno, opcount, start, stop) => {
+    var keyboard = [];
+    var choices = [];
+    let cbdata = type + '-' + Item;
+    // let Type = type;
+    // let Items = Item;
+    console.log("Searching for " + Item + " as " + type + " in the Results");
+    reply_message = 'Searching for : ' + Item + '\n' + `Loaded Options : ${(pageno*opcount)-(opcount-stop)}`;
+    for (let i = start; i < stop; i++) {
+        choices[i] = new Object();
+        choices[i].Title = MovieResults[MovieResults.findIndex(x => x.callbackdata == cbdata)].results.Search[i].Title;
+        choices[i].Type = MovieResults[MovieResults.findIndex(x => x.callbackdata == cbdata)].results.Search[i].Type;
+        keyboard.push([{
+            text: choices[i].Title + ' : ' + choices[i].Type,
+            callback_data: JSON.stringify(pageno) + '-' + JSON.stringify(MovieResults.findIndex(x => x.callbackdata == cbdata)) + '-' + JSON.stringify(i)
+
+        }]);
+    }
+    keyboard.push([{
+        text: "Load More",
+        callback_data: pageno + '-' + MovieResults.findIndex(x => x.callbackdata == cbdata)
+
+    }]);
+    MovieResults[MovieResults.findIndex(x => x.callbackdata == cbdata)].loaded = stop;
     console.log("Keyboard Builded :\n");
     console.log(keyboard + '\n');
     return (keyboard);
@@ -136,21 +170,21 @@ Datasender = (cbdata, media, ctx) => {
     // console.log(ctx);
     let run;
     anime = () => {
-        let imageurl = Results[cbdata[1]].results.results[cbdata[2]].image_url;
-        let Title = Results[cbdata[1]].results.results[cbdata[2]].title;
-        let type = Results[cbdata[1]].results.results[cbdata[2]].type;
+        let imageurl = AnimeResults[cbdata[1]].results.results[cbdata[2]].image_url;
+        let Title = AnimeResults[cbdata[1]].results.results[cbdata[2]].title;
+        let type = AnimeResults[cbdata[1]].results.results[cbdata[2]].type;
         let Airing = () => {
-            if (Results[cbdata[1]].results.results[cbdata[2]].airing) {
+            if (AnimeResults[cbdata[1]].results.results[cbdata[2]].airing) {
                 return ("Currently Airing")
             } else {
                 return ("Finished Airing")
             }
         }
-        let Episodes = Results[cbdata[1]].results.results[cbdata[2]].episodes;
-        let Score = Results[cbdata[1]].results.results[cbdata[2]].score;
-        let Rating = Results[cbdata[1]].results.results[cbdata[2]].rated;
-        let url = Results[cbdata[1]].results.results[cbdata[2]].url;
-        let plot = Results[cbdata[1]].results.results[cbdata[2]].synopsis;
+        let Episodes = AnimeResults[cbdata[1]].results.results[cbdata[2]].episodes;
+        let Score = AnimeResults[cbdata[1]].results.results[cbdata[2]].score;
+        let Rating = AnimeResults[cbdata[1]].results.results[cbdata[2]].rated;
+        let url = AnimeResults[cbdata[1]].results.results[cbdata[2]].url;
+        let plot = AnimeResults[cbdata[1]].results.results[cbdata[2]].synopsis;
         ctx.replyWithPhoto(imageurl, { caption: "\n\nTitle: " + Title + "\nType: " + type + "\nStatus: " + Airing() + "\nNo.of.Episodes: " + Episodes + "\nScore: " + Score + "\nRating: " + Rating + "\n" + plot + "\n\nFor more info visit: " + url })
     }
     if (media[0] == "anime")
@@ -187,7 +221,7 @@ bot.command('anime', async(ctx) => {
             let opcount = returnvalue.results.length;
             let stop = 5;
             let start = 0;
-            let keyboard = KeyboardBuilder(anime_name, "anime", page, opcount, start, stop)
+            let keyboard = AnimeKeyboardBuilder(anime_name, "anime", page, opcount, start, stop)
             KeyboardSender(reply_message, keyboard, ctx);
             // let cbdata = 'anime-fullmetal'
             // console.log(Results.findIndex(x => x.callbackdata == cbdata));
@@ -204,21 +238,21 @@ bot.command('anime', async(ctx) => {
                 cbdata = cbdata.map((x) => { return parseInt(x, 10) })
                     // console.log(cbdata);
                 if (cbdata.length == 2) {
-                    let media = Results[cbdata[1]].callbackdata.split('-')
+                    let media = AnimeResults[cbdata[1]].callbackdata.split('-')
                         // console.log(media);
-                    let options = Results[cbdata[1]].loaded;
+                    let options = AnimeResults[cbdata[1]].loaded;
                     // console.log(options);
                     // console.log(opcount);
                     if (options + 5 > opcount) {
                         console.log("Resource does not exist")
                         ctx.reply("Resource does not exist")
                     } else {
-                        console.log("Loading More Options for " + Results[cbdata[1]].callbackdata)
-                        let keydata = KeyboardBuilder(media[1], media[0], cbdata[0], opcount, options, options + 5)
+                        console.log("Loading More Options for " + AnimeResults[cbdata[1]].callbackdata)
+                        let keydata = AnimeKeyboardBuilder(media[1], media[0], cbdata[0], opcount, options, options + 5)
                         KeyboardSender(reply_message, keydata, ctx);
                     }
                 } else {
-                    let media = Results[cbdata[1]].callbackdata.split('-')
+                    let media = AnimeResults[cbdata[1]].callbackdata.split('-')
                         // console.log(media);
                         // console.log(Results[cbdata[1]].results.results[cbdata[2]]);
                         // ctx.replyWithPhoto(Results[cbdata[1]].results.results[cbdata[2]])
@@ -237,6 +271,87 @@ bot.command('anime', async(ctx) => {
 
     }
 });
+
+
+
+bot.command('movie', async(ctx) => {
+
+    // console.log(ctx);
+    console.log(`Executing the user command: ${ctx.message.text}`)
+    chatId = ctx.message.chat.id;
+    console.log("Chat ID:" + chatId);
+    let search = ctx.message.text.split(" ");
+    search.shift();
+    movie_name = search.join("").toLowerCase();
+    // console.log(search);
+    if (search.length == 0) {
+        console.log("No Arguments Passed");
+        ctx.reply(`Kindly Follow The Procedure ${ctx.message.chat.first_name}`);
+        ctx.reply("<Usage>: /movie <movie-name>");
+    } else {
+
+        var returnvalue = await DataRequest(movie_name, page, "movie");
+        // console.log("Returned")
+        console.log(returnvalue)
+        console.log(MovieResults);
+        if (returnvalue.status == 400) {
+            ctx.reply(returnvalue.message + '. Try again Later!');
+        } else {
+
+            let opcount = returnvalue.Search.length;
+            let stop = 5;
+            let start = 0;
+            let keyboard = MovieKeyboardBuilder(movie_name, "movie", page, opcount, start, stop)
+            KeyboardSender(reply_message, keyboard, ctx);
+            // let cbdata = 'anime-fullmetal'
+            // console.log(Results.findIndex(x => x.callbackdata == cbdata));
+
+
+            bot.on('callback_query', (cbd) => {
+                const cbquery = cbd.update.callback_query.data;
+                // console.log(ctx.update.callback_query);
+                // console.log(ctx.update);
+                // console.log(ctx);
+
+                console.log("Received Callback Query Data :" + cbquery);
+                var cbdata = cbquery.split("-");
+                cbdata = cbdata.map((x) => { return parseInt(x, 10) })
+                    // console.log(cbdata);
+                if (cbdata.length == 2) {
+                    let media = MovieResults[cbdata[1]].callbackdata.split('-')
+                        // console.log(media);
+                    let options = MovieResults[cbdata[1]].loaded;
+                    // console.log(options);
+                    // console.log(opcount);
+                    if (options + 5 > opcount) {
+                        console.log("Resource does not exist")
+                        ctx.reply("Resource does not exist")
+                    } else {
+                        console.log("Loading More Options for " + MovieResults[cbdata[1]].callbackdata)
+                        let keydata = MovieKeyboardBuilder(media[1], media[0], cbdata[0], opcount, options, options + 5)
+                        KeyboardSender(reply_message, keydata, ctx);
+                    }
+                } else {
+                    let media = MovieResults[cbdata[1]].callbackdata.split('-')
+                        // console.log(media);
+                        // console.log(Results[cbdata[1]].results.results[cbdata[2]]);
+                        // ctx.replyWithPhoto(Results[cbdata[1]].results.results[cbdata[2]])
+                        // Datasender(cbdata, media, ctx);
+                    console.log("Data sent for " + media[0] + "-" + media[1]);
+
+                }
+
+
+
+            })
+        }
+
+
+        // console.log(Results)
+
+    }
+});
+
 
 bot.launch();
 // module.exports = bot;
