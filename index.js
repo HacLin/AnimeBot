@@ -1,6 +1,6 @@
 // const { Composer } = require('micro-bot');
 // const bot = new Composer;
-const { Telegraf, TelegramError } = require('telegraf');
+const { Telegraf } = require('telegraf');
 const bot = new Telegraf("1341590139:AAE_Zq-OKl4woXAwBKYkN1MDDRtEtosSz7E");
 const request = require('request');
 
@@ -37,11 +37,12 @@ var reply_message = '';
 ApiCallBuilder = (Item, page, type) => {
 
     apicalls.anime = `https://api.jikan.moe/v3/search/anime?q=${Item}&page=${page}`
-    apicalls.movie = `https://www.omdbapi.com/?s=${Item}&apikey=7e218023&page=${page}`
+    apicalls.movie = `https://api.themoviedb.org/3/search/multi?api_key=c9c21f242f05975b7365c089c0acd443&language=en-US&query=${Item}&page=${page}`
     url = apicalls[type]
     console.log("Builded API Call: " + url);
     return (url);
 }
+
 
 
 
@@ -61,20 +62,21 @@ DataRequest = (Item, page, type) => {
     return new Promise(function(resolve, reject) {
 
         request(url_options, (error, response, body) => {
+            // console.log(response);
 
             if (!error) {
                 var res = JSON.parse(body);
                 console.log("Data Received");
                 let temp = new Object();
                 temp.results = res;
-                // temp.type = type;
-                // temp.Item = Item;
                 temp.loaded = 0;
                 temp.callbackdata = type + '-' + Item
-                if (type == "anime")
+                let ret = type;
+                if (ret == "anime")
                     AnimeResults.push(temp);
-                if (type == "movie")
-                    MovieResults.push(temp);
+                if (ret == "movie")
+                    MovieResults.push(temp)
+                console.log("Data pushed into " + ret + "DB");
                 resolve(res);
                 // console.log(res);
                 if (res.status == 400) {
@@ -131,8 +133,8 @@ MovieKeyboardBuilder = (Item, type, pageno, opcount, start, stop) => {
     reply_message = 'Searching for : ' + Item + '\n' + `Loaded Options : ${(pageno*opcount)-(opcount-stop)}`;
     for (let i = start; i < stop; i++) {
         choices[i] = new Object();
-        choices[i].Title = MovieResults[MovieResults.findIndex(x => x.callbackdata == cbdata)].results.Search[i].Title;
-        choices[i].Type = MovieResults[MovieResults.findIndex(x => x.callbackdata == cbdata)].results.Search[i].Type;
+        choices[i].Title = MovieResults[MovieResults.findIndex(x => x.callbackdata == cbdata)].results.results[i].title;
+        choices[i].Type = MovieResults[MovieResults.findIndex(x => x.callbackdata == cbdata)].results.results[i].media_type;
         keyboard.push([{
             text: choices[i].Title + ' : ' + choices[i].Type,
             callback_data: JSON.stringify(pageno) + '-' + JSON.stringify(MovieResults.findIndex(x => x.callbackdata == cbdata)) + '-' + JSON.stringify(i)
@@ -292,13 +294,16 @@ bot.command('movie', async(ctx) => {
 
         var returnvalue = await DataRequest(movie_name, page, "movie");
         // console.log("Returned")
+        // console.log(returnvalue)
         console.log(returnvalue)
-        console.log(MovieResults);
+        console.log(MovieResults)
+            // console.log(MovieResults.results.results);
+            // console.log(MovieResults.results.results.genre_ids)
         if (returnvalue.status == 400) {
             ctx.reply(returnvalue.message + '. Try again Later!');
         } else {
 
-            let opcount = returnvalue.Search.length;
+            let opcount = returnvalue.results.length;
             let stop = 5;
             let start = 0;
             let keyboard = MovieKeyboardBuilder(movie_name, "movie", page, opcount, start, stop)
