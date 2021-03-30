@@ -1,7 +1,7 @@
 // const { Composer } = require('micro-bot');
 // const bot = new Composer;
 const { Telegraf } = require('telegraf');
-const bot = new Telegraf("1341590139:AAE_Zq-OKl4woXAwBKYkN1MDDRtEtosSz7E");
+const bot = new Telegraf("1725572839:AAFvTQVM0x5AhZzTQ4jk6CnnPd5WU6u5G3E");
 const request = require('request');
 
 bot.start((ctx) => {
@@ -24,20 +24,20 @@ bot.help((ctx) => {
 
 //Global Variables
 var AnimeResults = [];
-var MovieResults = [];
-var req = [];
+// var MovieResults = [];
 var anime_name = ' ';
 let page = 1;
 var apicalls = [];
 apicalls = new Object();
 var reply_message = '';
+const Methods = ['anime', 'movie', 'undefined'];
 
 
 //Builds api calls for data receiving function 
 ApiCallBuilder = (Item, page, type) => {
 
     apicalls.anime = `https://api.jikan.moe/v3/search/anime?q=${Item}&page=${page}`
-    apicalls.movie = `https://www.omdbapi.com/?s=${Item}&apikey=7e218023&page=${page}`
+
     url = apicalls[type]
     console.log("Builded API Call: " + url);
     return (url);
@@ -45,8 +45,9 @@ ApiCallBuilder = (Item, page, type) => {
 
 
 
-//Globalised function for receiving data
-DataRequest = (Item, page, type) => {
+
+//Receves data from the api
+DataRequest = async(Item, page, type) => {
     console.log("Searching for " + Item + ` page:${page}`);
     // ctx.reply("///...Searching for " + Item + ` page:${page}` + " in the server...///");
 
@@ -58,299 +59,156 @@ DataRequest = (Item, page, type) => {
         method: "GET",
         url: api_call
     }
-    return new Promise(function(resolve, reject) {
+    return new Promise(await
+        function(resolve, reject) {
 
-        request(url_options, (error, response, body) => {
+            request(url_options, (error, response, body) => {
+                // console.log(response);
 
-            if (!error) {
-                var res = JSON.parse(body);
-                console.log("Data Received");
-                let temp = new Object();
-                temp.results = res;
-                // temp.type = type;
-                // temp.Item = Item;
-                temp.loaded = 0;
-                temp.callbackdata = type + '-' + Item
-                if (type == "anime")
-                    AnimeResults.push(temp);
-                if (type == "movie")
-                    MovieResults.push(temp);
-                resolve(res);
-                // console.log(res);
-                if (res.status == 400) {
-                    reject(res.message);
+                if (!error) {
+                    var res = JSON.parse(body);
+                    console.log("Data Received");
+                    let temp = new Object();
+                    temp.results = res;
+                    temp.loaded = 0;
+                    temp.callbackdata = type + '-' + Item
+                    let ret = type;
+                    if (ret == "anime")
+                        AnimeResults.push(temp);
+                    // if (ret == "movie")
+                    //     MovieResults.push(temp)
+                    console.log("Data pushed into " + ret + "DB");
+                    resolve(res);
+                    // console.log(res);
+                    if (res.status == 400) {
+                        reject(res.message);
+                    }
+
+                    // console.log(Results);
+                    // console.log("Not Returned");
                 }
-
-                // console.log(Results);
-                // console.log("Not Returned");
-            }
+            })
         })
-    })
 
 
 }
 
 
 //Globalise the function
-AnimeKeyboardBuilder = (Item, type, pageno, opcount, start, stop) => {
-    var keyboard = [];
-    var choices = [];
+AnimeQueryBuilder = (Item, type, pageno, opcount, start, stop) => {
+    var query = [];
+    var choices;
     let cbdata = type + '-' + Item;
-    // let Type = type;
-    // let Items = Item;
+    let opt = AnimeResults.findIndex(x => x.callbackdata == cbdata)
+        // let Type = type;
+        // let Items = Item;
     console.log("Searching for " + Item + " as " + type + " in the Results");
-    reply_message = 'Searching for : ' + Item + '\n' + `Loaded Options : ${(pageno*opcount)-(opcount-stop)}`;
     for (let i = start; i < stop; i++) {
-        choices[i] = new Object();
-        choices[i].Title = AnimeResults[AnimeResults.findIndex(x => x.callbackdata == cbdata)].results.results[i].title;
-        choices[i].Type = AnimeResults[AnimeResults.findIndex(x => x.callbackdata == cbdata)].results.results[i].type;
-        keyboard.push([{
-            text: choices[i].Title + ' : ' + choices[i].Type,
-            callback_data: JSON.stringify(pageno) + '-' + JSON.stringify(AnimeResults.findIndex(x => x.callbackdata == cbdata)) + '-' + JSON.stringify(i)
+        choices = new Object();
+        choices.ImageUrl = AnimeResults[opt].results.results[i].image_url;
+        choices.Title = AnimeResults[opt].results.results[i].title;
+        choices.Type = AnimeResults[opt].results.results[i].type;
+        if (choices.AnimeResults[opt].results.results[i].airing) {
+            choices.Airing = "Currently Airing"
+        } else {
+            choices.Airing = "Finished Airing"
+        }
 
-        }]);
+        choices.Episodes = AnimeResults[opt].results.results[i].episodes;
+        choices.Score = AnimeResults[opt].results.results[i].score;
+        choices.Rated = AnimeResults[opt].results.results[i].rated;
+        choices.url = AnimeResults[opt].results.results[i].url;
+        choices.plot = AnimeResults[opt].results.results[i].synopsis;
+        query.push(choices);
     }
-    keyboard.push([{
-        text: "Load More",
-        callback_data: pageno + '-' + AnimeResults.findIndex(x => x.callbackdata == cbdata)
 
-    }]);
-    AnimeResults[AnimeResults.findIndex(x => x.callbackdata == cbdata)].loaded = stop;
-    console.log("Keyboard Builded :\n");
-    console.log(keyboard + '\n');
-    return (keyboard);
 
-}
-MovieKeyboardBuilder = (Item, type, pageno, opcount, start, stop) => {
-    var keyboard = [];
-    var choices = [];
-    let cbdata = type + '-' + Item;
-    // let Type = type;
-    // let Items = Item;
-    console.log("Searching for " + Item + " as " + type + " in the Results");
-    reply_message = 'Searching for : ' + Item + '\n' + `Loaded Options : ${(pageno*opcount)-(opcount-stop)}`;
-    for (let i = start; i < stop; i++) {
-        choices[i] = new Object();
-        choices[i].Title = MovieResults[MovieResults.findIndex(x => x.callbackdata == cbdata)].results.Search[i].Title;
-        choices[i].Type = MovieResults[MovieResults.findIndex(x => x.callbackdata == cbdata)].results.Search[i].Type;
-        keyboard.push([{
-            text: choices[i].Title + ' : ' + choices[i].Type,
-            callback_data: JSON.stringify(pageno) + '-' + JSON.stringify(MovieResults.findIndex(x => x.callbackdata == cbdata)) + '-' + JSON.stringify(i)
-
-        }]);
-    }
-    keyboard.push([{
-        text: "Load More",
-        callback_data: pageno + '-' + MovieResults.findIndex(x => x.callbackdata == cbdata)
-
-    }]);
-    MovieResults[MovieResults.findIndex(x => x.callbackdata == cbdata)].loaded = stop;
-    console.log("Keyboard Builded :\n");
-    console.log(keyboard + '\n');
-    return (keyboard);
-
+    console.log("Query Builded :\n");
+    // console.log(query.map((x) => console.log(x)) + '\n');
+    return (query);
 }
 
 
-KeyboardSender = (repmsg, keydata, ctx) => {
-    ctx.reply(repmsg, {
-            reply_markup: JSON.stringify({
-                inline_keyboard: keydata
 
-            })
-        })
-        .then(console.log(`Keyboard Sent to the chat ${ctx.message.chat.id}`))
-        .catch(err => console.log(err))
 
-}
-Datasender = (cbdata, media, ctx) => {
 
-    // console.log(cbdata);
-    // console.log(media);
-    // console.log(ctx);
-    let run;
-    anime = () => {
-        let imageurl = AnimeResults[cbdata[1]].results.results[cbdata[2]].image_url;
-        let Title = AnimeResults[cbdata[1]].results.results[cbdata[2]].title;
-        let type = AnimeResults[cbdata[1]].results.results[cbdata[2]].type;
-        let Airing = () => {
-            if (AnimeResults[cbdata[1]].results.results[cbdata[2]].airing) {
-                return ("Currently Airing")
-            } else {
-                return ("Finished Airing")
+bot.on('inline_query', async(ctx) => {
+    let Query = ctx.update.inline_query.query;
+    console.log(`Executing the user query: ${Query}`)
+    console.log("Chat ID: " + ctx.update.inline_query.from.id)
+    let search = Query.split(" ");
+    let method = search[0];
+    search.shift();
+    let searchitem = search.join("").toLowerCase();
+    let option = Methods.indexOf(method)
+    console.log("Executing " + Methods[option] + " function");
+    let InlineResults;
+    if (option == 2)
+        console.log("Interpreting query.....")
+    switch (option) {
+        case 0:
+            if (searchitem == 'undefined' || searchitem == 'null' || searchitem == "") {
+                console.log("Interpreting query....");
+                break;
             }
-        }
-        let Episodes = AnimeResults[cbdata[1]].results.results[cbdata[2]].episodes;
-        let Score = AnimeResults[cbdata[1]].results.results[cbdata[2]].score;
-        let Rating = AnimeResults[cbdata[1]].results.results[cbdata[2]].rated;
-        let url = AnimeResults[cbdata[1]].results.results[cbdata[2]].url;
-        let plot = AnimeResults[cbdata[1]].results.results[cbdata[2]].synopsis;
-        ctx.replyWithPhoto(imageurl, { caption: "\n\nTitle: " + Title + "\nType: " + type + "\nStatus: " + Airing() + "\nNo.of.Episodes: " + Episodes + "\nScore: " + Score + "\nRating: " + Rating + "\n" + plot + "\n\nFor more info visit: " + url })
+
+            InlineResults = await Anime(ctx, searchitem);
+            ctx.answerInlineQuery(InlineResults).catch((err) => console.log(err));
+            break;
+        case 1:
+            InlineResults = await Movie(ctx, searchitem);
+            ctx.answerInlineQuery(InlineResults).catch((err) => console.log(err));
+            break;
+
     }
-    if (media[0] == "anime")
-        run = anime
-    run();
+
+
+
+})
+
+Anime = async(ctx, searchitem) => {
+
+
+    var returnvalue = await DataRequest(searchitem, page, "anime");
+
+    if (returnvalue.status == 400) {
+        ctx.reply(returnvalue.message + '. Try again Later!');
+    } else {
+
+        let opcount = returnvalue.results.length;
+        let stop = opcount;
+        let start = 0;
+        let query = AnimeQueryBuilder(searchitem, "anime", page, opcount, start, stop)
+            // console.log(query);
+        let InlineResults = query.map((item, index) => {
+            // console.log(item);
+            return {
+                type: 'article',
+                id: String(index),
+                title: item.Title + ':' + item.Type,
+                input_message_content: {
+                    message_text: '\nTitle: ' + item.Title + '\nType: ' + item.Type + '\nStatus: ' + item.Airing + '\nScore :' + item.Score + '\nNo.of.Episodes: ' + item.Episodes + '\nSynopsis: ' + item.plot,
+                    parse_mode: "Markdown"
+                },
+                reply_markup: {
+                    inline_keyboard: [
+                        [{ text: "Share", switch_inline_query: `${item.Type}` + " " + `${item.Title}` }],
+                        [{ text: "Visit for more info", url: `${item.url}` }]
+                    ]
+                },
+                // photo_url: item.ImageUrl,
+                thumb_url: item.ImageUrl,
+                url: item.url,
+                description: item.plot,
+                // caption: String(item. + "\n" + ) || "none"
+
+            }
+        })
+        console.log(InlineResults);
+        return (InlineResults);
+
+    }
 }
-
-
-
-bot.command('anime', async(ctx) => {
-
-    // console.log(ctx);
-    console.log(`Executing the user command: ${ctx.message.text}`)
-    chatId = ctx.message.chat.id;
-    console.log("Chat ID:" + chatId);
-    let search = ctx.message.text.split(" ");
-    search.shift();
-    anime_name = search.join("").toLowerCase();
-    // console.log(search);
-    if (search.length == 0) {
-        console.log("No Arguments Passed");
-        ctx.reply(`Kindly Follow The Procedure ${ctx.message.chat.first_name}`);
-        ctx.reply("<Usage>: /anime <anime-name>");
-    } else {
-
-        var returnvalue = await DataRequest(anime_name, page, "anime");
-        // console.log("Returned")
-        // console.log(returnvalue)
-        // console.log(Results);
-        if (returnvalue.status == 400) {
-            ctx.reply(returnvalue.message + '. Try again Later!');
-        } else {
-
-            let opcount = returnvalue.results.length;
-            let stop = 5;
-            let start = 0;
-            let keyboard = AnimeKeyboardBuilder(anime_name, "anime", page, opcount, start, stop)
-            KeyboardSender(reply_message, keyboard, ctx);
-            // let cbdata = 'anime-fullmetal'
-            // console.log(Results.findIndex(x => x.callbackdata == cbdata));
-
-
-            bot.on('callback_query', (cbd) => {
-                const cbquery = cbd.update.callback_query.data;
-                // console.log(ctx.update.callback_query);
-                // console.log(ctx.update);
-                // console.log(ctx);
-
-                console.log("Received Callback Query Data :" + cbquery);
-                var cbdata = cbquery.split("-");
-                cbdata = cbdata.map((x) => { return parseInt(x, 10) })
-                    // console.log(cbdata);
-                if (cbdata.length == 2) {
-                    let media = AnimeResults[cbdata[1]].callbackdata.split('-')
-                        // console.log(media);
-                    let options = AnimeResults[cbdata[1]].loaded;
-                    // console.log(options);
-                    // console.log(opcount);
-                    if (options + 5 > opcount) {
-                        console.log("Resource does not exist")
-                        ctx.reply("Resource does not exist")
-                    } else {
-                        console.log("Loading More Options for " + AnimeResults[cbdata[1]].callbackdata)
-                        let keydata = AnimeKeyboardBuilder(media[1], media[0], cbdata[0], opcount, options, options + 5)
-                        KeyboardSender(reply_message, keydata, ctx);
-                    }
-                } else {
-                    let media = AnimeResults[cbdata[1]].callbackdata.split('-')
-                        // console.log(media);
-                        // console.log(Results[cbdata[1]].results.results[cbdata[2]]);
-                        // ctx.replyWithPhoto(Results[cbdata[1]].results.results[cbdata[2]])
-                    Datasender(cbdata, media, ctx);
-                    console.log("Data sent for " + media[0] + "-" + media[1]);
-
-                }
-
-
-
-            })
-        }
-
-
-        // console.log(Results)
-
-    }
-});
-
-
-
-bot.command('movie', async(ctx) => {
-
-    // console.log(ctx);
-    console.log(`Executing the user command: ${ctx.message.text}`)
-    chatId = ctx.message.chat.id;
-    console.log("Chat ID:" + chatId);
-    let search = ctx.message.text.split(" ");
-    search.shift();
-    movie_name = search.join("").toLowerCase();
-    // console.log(search);
-    if (search.length == 0) {
-        console.log("No Arguments Passed");
-        ctx.reply(`Kindly Follow The Procedure ${ctx.message.chat.first_name}`);
-        ctx.reply("<Usage>: /movie <movie-name>");
-    } else {
-
-        var returnvalue = await DataRequest(movie_name, page, "movie");
-        // console.log("Returned")
-        console.log(returnvalue)
-        console.log(MovieResults);
-        if (returnvalue.status == 400) {
-            ctx.reply(returnvalue.message + '. Try again Later!');
-        } else {
-
-            let opcount = returnvalue.Search.length;
-            let stop = 5;
-            let start = 0;
-            let keyboard = MovieKeyboardBuilder(movie_name, "movie", page, opcount, start, stop)
-            KeyboardSender(reply_message, keyboard, ctx);
-            // let cbdata = 'anime-fullmetal'
-            // console.log(Results.findIndex(x => x.callbackdata == cbdata));
-
-
-            bot.on('callback_query', (cbd) => {
-                const cbquery = cbd.update.callback_query.data;
-                // console.log(ctx.update.callback_query);
-                // console.log(ctx.update);
-                // console.log(ctx);
-
-                console.log("Received Callback Query Data :" + cbquery);
-                var cbdata = cbquery.split("-");
-                cbdata = cbdata.map((x) => { return parseInt(x, 10) })
-                    // console.log(cbdata);
-                if (cbdata.length == 2) {
-                    let media = MovieResults[cbdata[1]].callbackdata.split('-')
-                        // console.log(media);
-                    let options = MovieResults[cbdata[1]].loaded;
-                    // console.log(options);
-                    // console.log(opcount);
-                    if (options + 5 > opcount) {
-                        console.log("Resource does not exist")
-                        ctx.reply("Resource does not exist")
-                    } else {
-                        console.log("Loading More Options for " + MovieResults[cbdata[1]].callbackdata)
-                        let keydata = MovieKeyboardBuilder(media[1], media[0], cbdata[0], opcount, options, options + 5)
-                        KeyboardSender(reply_message, keydata, ctx);
-                    }
-                } else {
-                    let media = MovieResults[cbdata[1]].callbackdata.split('-')
-                        // console.log(media);
-                        // console.log(Results[cbdata[1]].results.results[cbdata[2]]);
-                        // ctx.replyWithPhoto(Results[cbdata[1]].results.results[cbdata[2]])
-                        // Datasender(cbdata, media, ctx);
-                    console.log("Data sent for " + media[0] + "-" + media[1]);
-
-                }
-
-
-
-            })
-        }
-
-
-        // console.log(Results)
-
-    }
-});
 
 
 bot.launch();
