@@ -25,7 +25,6 @@ bot.help((ctx) => {
 //Global Variables
 var AnimeResults = [];
 var MovieResults = [];
-var req = [];
 var anime_name = ' ';
 let page = 1;
 var apicalls = [];
@@ -46,7 +45,7 @@ ApiCallBuilder = (Item, page, type) => {
 
 
 
-//Globalised function for receiving data
+//Receives data from the api
 DataRequest = (Item, page, type) => {
     console.log("Searching for " + Item + ` page:${page}`);
     // ctx.reply("///...Searching for " + Item + ` page:${page}` + " in the server...///");
@@ -295,7 +294,7 @@ bot.command('movie', async(ctx) => {
         var returnvalue = await DataRequest(movie_name, page, "movie");
         // console.log("Returned")
         // console.log(returnvalue)
-        console.log(returnvalue)
+        console.log(returnvalue.results[0].genre_ids)
         console.log(MovieResults)
             // console.log(MovieResults.results.results);
             // console.log(MovieResults.results.results.genre_ids)
