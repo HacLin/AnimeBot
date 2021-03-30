@@ -47,7 +47,7 @@ ApiCallBuilder = (Item, page, type) => {
 
 
 //Receves data from the api
-DataRequest = (Item, page, type) => {
+DataRequest = async(Item, page, type) => {
     console.log("Searching for " + Item + ` page:${page}`);
     // ctx.reply("///...Searching for " + Item + ` page:${page}` + " in the server...///");
 
@@ -59,35 +59,36 @@ DataRequest = (Item, page, type) => {
         method: "GET",
         url: api_call
     }
-    return new Promise(function(resolve, reject) {
+    return new Promise(await
+        function(resolve, reject) {
 
-        request(url_options, (error, response, body) => {
-            // console.log(response);
+            request(url_options, (error, response, body) => {
+                // console.log(response);
 
-            if (!error) {
-                var res = JSON.parse(body);
-                console.log("Data Received");
-                let temp = new Object();
-                temp.results = res;
-                temp.loaded = 0;
-                temp.callbackdata = type + '-' + Item
-                let ret = type;
-                if (ret == "anime")
-                    AnimeResults.push(temp);
-                // if (ret == "movie")
-                //     MovieResults.push(temp)
-                console.log("Data pushed into " + ret + "DB");
-                resolve(res);
-                // console.log(res);
-                if (res.status == 400) {
-                    reject(res.message);
+                if (!error) {
+                    var res = JSON.parse(body);
+                    console.log("Data Received");
+                    let temp = new Object();
+                    temp.results = res;
+                    temp.loaded = 0;
+                    temp.callbackdata = type + '-' + Item
+                    let ret = type;
+                    if (ret == "anime")
+                        AnimeResults.push(temp);
+                    // if (ret == "movie")
+                    //     MovieResults.push(temp)
+                    console.log("Data pushed into " + ret + "DB");
+                    resolve(res);
+                    // console.log(res);
+                    if (res.status == 400) {
+                        reject(res.message);
+                    }
+
+                    // console.log(Results);
+                    // console.log("Not Returned");
                 }
-
-                // console.log(Results);
-                // console.log("Not Returned");
-            }
+            })
         })
-    })
 
 
 }
@@ -103,28 +104,28 @@ AnimeQueryBuilder = (Item, type, pageno, opcount, start, stop) => {
         // let Items = Item;
     console.log("Searching for " + Item + " as " + type + " in the Results");
     for (let i = start; i < stop; i++) {
-        choices[i] = new Object();
-        choice[i].ImageUrl = AnimeResults[opt].results.results[i].image_url;
-        choice[i].Title = AnimeResults[opt].results.results[i].title;
-        choice[i].Type = AnimeResults[opt].results.results[i].type;
+        choices = new Object();
+        choices.ImageUrl = AnimeResults[opt].results.results[i].image_url;
+        choices.Title = AnimeResults[opt].results.results[i].title;
+        choices.Type = AnimeResults[opt].results.results[i].type;
         let Airing = () => {
-            if (choice[i].AnimeResults[opt].results.results[i].airing) {
-                choice[i].Airing = "Currently Airing"
+            if (choices.AnimeResults[opt].results.results[i].airing) {
+                choices.Airing = "Currently Airing"
             } else {
-                choice[i].Airing = "Finished Airing"
+                choices.Airing = "Finished Airing"
             }
         }
-        choice[i].Episodes = AnimeResults[opt].results.results[i].episodes;
-        choice[i].Score = AnimeResults[opt].results.results[i].score;
-        choice[i].Rated = AnimeResults[opt].results.results[i].rated;
-        choice[i].url = AnimeResults[opt].results.results[i].url;
-        choice[i].plot = AnimeResults[opt].results.results[i].synopsis;
+        choices.Episodes = AnimeResults[opt].results.results[i].episodes;
+        choices.Score = AnimeResults[opt].results.results[i].score;
+        choices.Rated = AnimeResults[opt].results.results[i].rated;
+        choices.url = AnimeResults[opt].results.results[i].url;
+        choices.plot = AnimeResults[opt].results.results[i].synopsis;
         query.push(choices);
     }
 
 
     console.log("Query Builded :\n");
-    console.log(query.map((x) => console.log(x)) + '\n');
+    // console.log(query.map((x) => console.log(x)) + '\n');
     return (query);
 }
 
@@ -132,7 +133,7 @@ AnimeQueryBuilder = (Item, type, pageno, opcount, start, stop) => {
 
 
 
-bot.on('inline_query', (ctx) => {
+bot.on('inline_query', async(ctx) => {
     let Query = ctx.update.inline_query.query;
     console.log(`Executing the user query: ${Query}`)
     console.log("Chat ID: " + ctx.update.inline_query.from.id)
@@ -145,13 +146,13 @@ bot.on('inline_query', (ctx) => {
     let InlineResults;
     switch (option) {
         case 0:
-            InlineResults = Anime(ctx, searchitem);
+            InlineResults = await Anime(ctx, searchitem);
             break;
         case 1:
-            InlineResults = Movie(ctx, searchitem);
+            InlineResults = await Movie(ctx, searchitem);
             break;
     }
-    ctx.answerInlineQuery(InlineResults);
+    ctx.answerInlineQuery(InlineResults).catch((err) => console.log(err));
 
 
 })
@@ -169,18 +170,22 @@ Anime = async(ctx, searchitem) => {
         let stop = opcount;
         let start = 0;
         let query = AnimeQueryBuilder(searchitem, "anime", page, opcount, start, stop)
+            // console.log(query);
         let InlineResults = query.map((item, index) => {
-                // console.log(item);
-                return {
-                    type: 'photo',
-                    id: String(index),
-                    title: item.text,
-                    input_message_content: {
-                        message_text: item.text
-                    }
-                }
-            })
-            // console.log(InlineResults);
+            // console.log(item);
+            return {
+                type: 'article',
+                id: String(index),
+                title: item.Title + ':' + item.Type,
+                url: item.url,
+                // photo_url: item.ImageUrl,
+                thumb_url: item.ImageUrl,
+                description: item.plot,
+                // caption: String(item. + "\n" + ) || "none"
+
+            }
+        })
+        console.log(InlineResults);
         return (InlineResults);
 
     }
