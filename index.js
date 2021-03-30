@@ -1,7 +1,7 @@
 // const { Composer } = require('micro-bot');
 // const bot = new Composer;
 const { Telegraf } = require('telegraf');
-const bot = new Telegraf("1341590139:AAE_Zq-OKl4woXAwBKYkN1MDDRtEtosSz7E");
+const bot = new Telegraf("1725572839:AAFvTQVM0x5AhZzTQ4jk6CnnPd5WU6u5G3E");
 const request = require('request');
 
 bot.start((ctx) => {
@@ -24,19 +24,20 @@ bot.help((ctx) => {
 
 //Global Variables
 var AnimeResults = [];
-var MovieResults = [];
+// var MovieResults = [];
 var anime_name = ' ';
 let page = 1;
 var apicalls = [];
 apicalls = new Object();
 var reply_message = '';
+const Methods = ['anime', 'movie'];
 
 
 //Builds api calls for data receiving function 
 ApiCallBuilder = (Item, page, type) => {
 
     apicalls.anime = `https://api.jikan.moe/v3/search/anime?q=${Item}&page=${page}`
-    apicalls.movie = `https://api.themoviedb.org/3/search/multi?api_key=c9c21f242f05975b7365c089c0acd443&language=en-US&query=${Item}&page=${page}`
+
     url = apicalls[type]
     console.log("Builded API Call: " + url);
     return (url);
@@ -73,8 +74,8 @@ DataRequest = (Item, page, type) => {
                 let ret = type;
                 if (ret == "anime")
                     AnimeResults.push(temp);
-                if (ret == "movie")
-                    MovieResults.push(temp)
+                // if (ret == "movie")
+                //     MovieResults.push(temp)
                 console.log("Data pushed into " + ret + "DB");
                 resolve(res);
                 // console.log(res);
@@ -94,63 +95,63 @@ DataRequest = (Item, page, type) => {
 
 //Globalise the function
 AnimeKeyboardBuilder = (Item, type, pageno, opcount, start, stop) => {
-    var keyboard = [];
-    var choices = [];
-    let cbdata = type + '-' + Item;
-    // let Type = type;
-    // let Items = Item;
-    console.log("Searching for " + Item + " as " + type + " in the Results");
-    reply_message = 'Searching for : ' + Item + '\n' + `Loaded Options : ${(pageno*opcount)-(opcount-stop)}`;
-    for (let i = start; i < stop; i++) {
-        choices[i] = new Object();
-        choices[i].Title = AnimeResults[AnimeResults.findIndex(x => x.callbackdata == cbdata)].results.results[i].title;
-        choices[i].Type = AnimeResults[AnimeResults.findIndex(x => x.callbackdata == cbdata)].results.results[i].type;
+        var keyboard = [];
+        var choices = [];
+        let cbdata = type + '-' + Item;
+        // let Type = type;
+        // let Items = Item;
+        console.log("Searching for " + Item + " as " + type + " in the Results");
+        reply_message = 'Searching for : ' + Item + '\n' + `Loaded Options : ${(pageno*opcount)-(opcount-stop)}`;
+        for (let i = start; i < stop; i++) {
+            choices[i] = new Object();
+            choices[i].Title = AnimeResults[AnimeResults.findIndex(x => x.callbackdata == cbdata)].results.results[i].title;
+            choices[i].Type = AnimeResults[AnimeResults.findIndex(x => x.callbackdata == cbdata)].results.results[i].type;
+            keyboard.push([{
+                text: choices[i].Title + ' : ' + choices[i].Type,
+                callback_data: JSON.stringify(pageno) + '-' + JSON.stringify(AnimeResults.findIndex(x => x.callbackdata == cbdata)) + '-' + JSON.stringify(i)
+
+            }]);
+        }
         keyboard.push([{
-            text: choices[i].Title + ' : ' + choices[i].Type,
-            callback_data: JSON.stringify(pageno) + '-' + JSON.stringify(AnimeResults.findIndex(x => x.callbackdata == cbdata)) + '-' + JSON.stringify(i)
+            text: "Load More",
+            callback_data: pageno + '-' + AnimeResults.findIndex(x => x.callbackdata == cbdata)
 
         }]);
+        AnimeResults[AnimeResults.findIndex(x => x.callbackdata == cbdata)].loaded = stop;
+        console.log("Keyboard Builded :\n");
+        console.log(keyboard + '\n');
+        return (keyboard);
+
     }
-    keyboard.push([{
-        text: "Load More",
-        callback_data: pageno + '-' + AnimeResults.findIndex(x => x.callbackdata == cbdata)
+    // MovieKeyboardBuilder = (Item, type, pageno, opcount, start, stop) => {
+    //     var keyboard = [];
+    //     var choices = [];
+    //     let cbdata = type + '-' + Item;
+    //     // let Type = type;
+    //     // let Items = Item;
+    //     console.log("Searching for " + Item + " as " + type + " in the Results");
+    //     reply_message = 'Searching for : ' + Item + '\n' + `Loaded Options : ${(pageno*opcount)-(opcount-stop)}`;
+    //     for (let i = start; i < stop; i++) {
+    //         choices[i] = new Object();
+    //         choices[i].Title = MovieResults[MovieResults.findIndex(x => x.callbackdata == cbdata)].results.results[i].title;
+    //         choices[i].Type = MovieResults[MovieResults.findIndex(x => x.callbackdata == cbdata)].results.results[i].media_type;
+    //         keyboard.push([{
+    //             text: choices[i].Title + ' : ' + choices[i].Type,
+    //             callback_data: JSON.stringify(pageno) + '-' + JSON.stringify(MovieResults.findIndex(x => x.callbackdata == cbdata)) + '-' + JSON.stringify(i)
 
-    }]);
-    AnimeResults[AnimeResults.findIndex(x => x.callbackdata == cbdata)].loaded = stop;
-    console.log("Keyboard Builded :\n");
-    console.log(keyboard + '\n');
-    return (keyboard);
+//         }]);
+//     }
+//     keyboard.push([{
+//         text: "Load More",
+//         callback_data: pageno + '-' + MovieResults.findIndex(x => x.callbackdata == cbdata)
 
-}
-MovieKeyboardBuilder = (Item, type, pageno, opcount, start, stop) => {
-    var keyboard = [];
-    var choices = [];
-    let cbdata = type + '-' + Item;
-    // let Type = type;
-    // let Items = Item;
-    console.log("Searching for " + Item + " as " + type + " in the Results");
-    reply_message = 'Searching for : ' + Item + '\n' + `Loaded Options : ${(pageno*opcount)-(opcount-stop)}`;
-    for (let i = start; i < stop; i++) {
-        choices[i] = new Object();
-        choices[i].Title = MovieResults[MovieResults.findIndex(x => x.callbackdata == cbdata)].results.results[i].title;
-        choices[i].Type = MovieResults[MovieResults.findIndex(x => x.callbackdata == cbdata)].results.results[i].media_type;
-        keyboard.push([{
-            text: choices[i].Title + ' : ' + choices[i].Type,
-            callback_data: JSON.stringify(pageno) + '-' + JSON.stringify(MovieResults.findIndex(x => x.callbackdata == cbdata)) + '-' + JSON.stringify(i)
+//     }]);
+//     MovieResults[MovieResults.findIndex(x => x.callbackdata == cbdata)].loaded = stop;
+//     console.log("Keyboard Builded :\n");
+//     console.log(keyboard + '\n');
+//     return (keyboard);
 
-        }]);
-    }
-    keyboard.push([{
-        text: "Load More",
-        callback_data: pageno + '-' + MovieResults.findIndex(x => x.callbackdata == cbdata)
-
-    }]);
-    MovieResults[MovieResults.findIndex(x => x.callbackdata == cbdata)].loaded = stop;
-    console.log("Keyboard Builded :\n");
-    console.log(keyboard + '\n');
-    return (keyboard);
-
-}
+// }
 
 
 KeyboardSender = (repmsg, keydata, ctx) => {
@@ -193,12 +194,27 @@ Datasender = (cbdata, media, ctx) => {
     run();
 }
 
+bot.on('inline_query', (ctx) => {
+    let Query = ctx.update.inline_query.query;
+    console.log("Query for " + Query);
+    console.log(ctx.update.inline_query.from)
+    switch (Methods.findIndex(ctx.update.inline_query.query)) {
+        case 0:
+            Anime(ctx);
+            break;
+        case 1:
+            Movie(ctx);
+            break;
+    }
 
 
-bot.command('anime', async(ctx) => {
+})
+
+Anime = async(ctx) => {
 
     // console.log(ctx);
-    console.log(`Executing the user command: ${ctx.message.text}`)
+
+    console.log(`Executing the user query: ${ctx.update.inline_query.query}`)
     chatId = ctx.message.chat.id;
     console.log("Chat ID:" + chatId);
     let search = ctx.message.text.split(" ");
@@ -271,90 +287,90 @@ bot.command('anime', async(ctx) => {
         // console.log(Results)
 
     }
-});
+}
 
 
 
-bot.command('movie', async(ctx) => {
+// bot.command('movie', async(ctx) => {
 
-    // console.log(ctx);
-    console.log(`Executing the user command: ${ctx.message.text}`)
-    chatId = ctx.message.chat.id;
-    console.log("Chat ID:" + chatId);
-    let search = ctx.message.text.split(" ");
-    search.shift();
-    movie_name = search.join("").toLowerCase();
-    // console.log(search);
-    if (search.length == 0) {
-        console.log("No Arguments Passed");
-        ctx.reply(`Kindly Follow The Procedure ${ctx.message.chat.first_name}`);
-        ctx.reply("<Usage>: /movie <movie-name>");
-    } else {
+//     // console.log(ctx);
+//     console.log(`Executing the user command: ${ctx.message.text}`)
+//     chatId = ctx.message.chat.id;
+//     console.log("Chat ID:" + chatId);
+//     let search = ctx.message.text.split(" ");
+//     search.shift();
+//     movie_name = search.join("").toLowerCase();
+//     // console.log(search);
+//     if (search.length == 0) {
+//         console.log("No Arguments Passed");
+//         ctx.reply(`Kindly Follow The Procedure ${ctx.message.chat.first_name}`);
+//         ctx.reply("<Usage>: /movie <movie-name>");
+//     } else {
 
-        var returnvalue = await DataRequest(movie_name, page, "movie");
-        // console.log("Returned")
-        // console.log(returnvalue)
-        console.log(returnvalue.results[0].genre_ids)
-        console.log(MovieResults)
-            // console.log(MovieResults.results.results);
-            // console.log(MovieResults.results.results.genre_ids)
-        if (returnvalue.status == 400) {
-            ctx.reply(returnvalue.message + '. Try again Later!');
-        } else {
+//         var returnvalue = await DataRequest(movie_name, page, "movie");
+//         // console.log("Returned")
+//         // console.log(returnvalue)
+//         console.log(returnvalue.results[0].genre_ids)
+//         console.log(MovieResults)
+//             // console.log(MovieResults.results.results);
+//             // console.log(MovieResults.results.results.genre_ids)
+//         if (returnvalue.status == 400) {
+//             ctx.reply(returnvalue.message + '. Try again Later!');
+//         } else {
 
-            let opcount = returnvalue.results.length;
-            let stop = 5;
-            let start = 0;
-            let keyboard = MovieKeyboardBuilder(movie_name, "movie", page, opcount, start, stop)
-            KeyboardSender(reply_message, keyboard, ctx);
-            // let cbdata = 'anime-fullmetal'
-            // console.log(Results.findIndex(x => x.callbackdata == cbdata));
-
-
-            bot.on('callback_query', (cbd) => {
-                const cbquery = cbd.update.callback_query.data;
-                // console.log(ctx.update.callback_query);
-                // console.log(ctx.update);
-                // console.log(ctx);
-
-                console.log("Received Callback Query Data :" + cbquery);
-                var cbdata = cbquery.split("-");
-                cbdata = cbdata.map((x) => { return parseInt(x, 10) })
-                    // console.log(cbdata);
-                if (cbdata.length == 2) {
-                    let media = MovieResults[cbdata[1]].callbackdata.split('-')
-                        // console.log(media);
-                    let options = MovieResults[cbdata[1]].loaded;
-                    // console.log(options);
-                    // console.log(opcount);
-                    if (options + 5 > opcount) {
-                        console.log("Resource does not exist")
-                        ctx.reply("Resource does not exist")
-                    } else {
-                        console.log("Loading More Options for " + MovieResults[cbdata[1]].callbackdata)
-                        let keydata = MovieKeyboardBuilder(media[1], media[0], cbdata[0], opcount, options, options + 5)
-                        KeyboardSender(reply_message, keydata, ctx);
-                    }
-                } else {
-                    let media = MovieResults[cbdata[1]].callbackdata.split('-')
-                        // console.log(media);
-                        // console.log(Results[cbdata[1]].results.results[cbdata[2]]);
-                        // ctx.replyWithPhoto(Results[cbdata[1]].results.results[cbdata[2]])
-                        // Datasender(cbdata, media, ctx);
-                    console.log("Data sent for " + media[0] + "-" + media[1]);
-
-                }
+//             let opcount = returnvalue.results.length;
+//             let stop = 5;
+//             let start = 0;
+//             let keyboard = MovieKeyboardBuilder(movie_name, "movie", page, opcount, start, stop)
+//             KeyboardSender(reply_message, keyboard, ctx);
+//             // let cbdata = 'anime-fullmetal'
+//             // console.log(Results.findIndex(x => x.callbackdata == cbdata));
 
 
+//             bot.on('callback_query', (cbd) => {
+//                 const cbquery = cbd.update.callback_query.data;
+//                 // console.log(ctx.update.callback_query);
+//                 // console.log(ctx.update);
+//                 // console.log(ctx);
 
-            })
-        }
+//                 console.log("Received Callback Query Data :" + cbquery);
+//                 var cbdata = cbquery.split("-");
+//                 cbdata = cbdata.map((x) => { return parseInt(x, 10) })
+//                     // console.log(cbdata);
+//                 if (cbdata.length == 2) {
+//                     let media = MovieResults[cbdata[1]].callbackdata.split('-')
+//                         // console.log(media);
+//                     let options = MovieResults[cbdata[1]].loaded;
+//                     // console.log(options);
+//                     // console.log(opcount);
+//                     if (options + 5 > opcount) {
+//                         console.log("Resource does not exist")
+//                         ctx.reply("Resource does not exist")
+//                     } else {
+//                         console.log("Loading More Options for " + MovieResults[cbdata[1]].callbackdata)
+//                         let keydata = MovieKeyboardBuilder(media[1], media[0], cbdata[0], opcount, options, options + 5)
+//                         KeyboardSender(reply_message, keydata, ctx);
+//                     }
+//                 } else {
+//                     let media = MovieResults[cbdata[1]].callbackdata.split('-')
+//                         // console.log(media);
+//                         // console.log(Results[cbdata[1]].results.results[cbdata[2]]);
+//                         // ctx.replyWithPhoto(Results[cbdata[1]].results.results[cbdata[2]])
+//                         // Datasender(cbdata, media, ctx);
+//                     console.log("Data sent for " + media[0] + "-" + media[1]);
+
+//                 }
 
 
-        // console.log(Results)
 
-    }
-});
+//             })
+//         }
+
+
+//         // console.log(Results)
+
+//     }
+// });
 
 
 bot.launch();
