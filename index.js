@@ -108,7 +108,7 @@ AnimeQueryBuilder = (Item, type, pageno, opcount, start, stop) => {
         choices.ImageUrl = AnimeResults[opt].results.results[i].image_url;
         choices.Title = AnimeResults[opt].results.results[i].title;
         choices.Type = AnimeResults[opt].results.results[i].type;
-        if (choices.AnimeResults[opt].results.results[i].airing) {
+        if (AnimeResults[opt].results.results[i].airing) {
             choices.Airing = "Currently Airing"
         } else {
             choices.Airing = "Finished Airing"
@@ -187,7 +187,7 @@ Anime = async(ctx, searchitem) => {
                 id: String(index),
                 title: item.Title + ':' + item.Type,
                 input_message_content: {
-                    message_text: '\nTitle: ' + item.Title + '\nType: ' + item.Type + '\nStatus: ' + item.Airing + '\nScore :' + item.Score + '\nNo.of.Episodes: ' + item.Episodes + '\nSynopsis: ' + item.plot,
+                    message_text: item.ImageUrl + '\nTitle: ' + item.Title + '\nType: ' + item.Type + '\nStatus: ' + item.Airing + '\nScore :' + item.Score + '\nNo.of.Episodes: ' + item.Episodes + '\nSynopsis: ' + item.plot,
                     parse_mode: "Markdown"
                 },
                 reply_markup: {
@@ -199,6 +199,7 @@ Anime = async(ctx, searchitem) => {
                 // photo_url: item.ImageUrl,
                 thumb_url: item.ImageUrl,
                 url: item.url,
+                hide_url: true,
                 description: item.plot,
                 // caption: String(item. + "\n" + ) || "none"
 
