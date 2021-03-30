@@ -30,7 +30,7 @@ let page = 1;
 var apicalls = [];
 apicalls = new Object();
 var reply_message = '';
-const Methods = ['anime', 'movie'];
+const Methods = ['anime', 'movie', 'undefined'];
 
 
 //Builds api calls for data receiving function 
@@ -108,13 +108,12 @@ AnimeQueryBuilder = (Item, type, pageno, opcount, start, stop) => {
         choices.ImageUrl = AnimeResults[opt].results.results[i].image_url;
         choices.Title = AnimeResults[opt].results.results[i].title;
         choices.Type = AnimeResults[opt].results.results[i].type;
-        let Airing = () => {
-            if (choices.AnimeResults[opt].results.results[i].airing) {
-                choices.Airing = "Currently Airing"
-            } else {
-                choices.Airing = "Finished Airing"
-            }
+        if (choices.AnimeResults[opt].results.results[i].airing) {
+            choices.Airing = "Currently Airing"
+        } else {
+            choices.Airing = "Finished Airing"
         }
+
         choices.Episodes = AnimeResults[opt].results.results[i].episodes;
         choices.Score = AnimeResults[opt].results.results[i].score;
         choices.Rated = AnimeResults[opt].results.results[i].rated;
@@ -144,15 +143,25 @@ bot.on('inline_query', async(ctx) => {
     let option = Methods.indexOf(method)
     console.log("Executing " + Methods[option] + " function");
     let InlineResults;
+    if (option == 2)
+        console.log("Interpreting query.....")
     switch (option) {
         case 0:
+            if (searchitem == 'undefined' || searchitem == 'null' || searchitem == "") {
+                console.log("Interpreting query....");
+                break;
+            }
+
             InlineResults = await Anime(ctx, searchitem);
+            ctx.answerInlineQuery(InlineResults).catch((err) => console.log(err));
             break;
         case 1:
             InlineResults = await Movie(ctx, searchitem);
+            ctx.answerInlineQuery(InlineResults).catch((err) => console.log(err));
             break;
+
     }
-    ctx.answerInlineQuery(InlineResults).catch((err) => console.log(err));
+
 
 
 })
@@ -177,9 +186,19 @@ Anime = async(ctx, searchitem) => {
                 type: 'article',
                 id: String(index),
                 title: item.Title + ':' + item.Type,
-                url: item.url,
+                input_message_content: {
+                    message_text: '\nTitle: ' + item.Title + '\nType: ' + item.Type + '\nStatus: ' + item.Airing + '\nScore :' + item.Score + '\nNo.of.Episodes: ' + item.Episodes + '\nSynopsis: ' + item.plot,
+                    parse_mode: "Markdown"
+                },
+                reply_markup: {
+                    inline_keyboard: [
+                        [{ text: "Share", switch_inline_query: `${item.Type}` + " " + `${item.Title}` }],
+                        [{ text: "Visit for more info", url: `${item.url}` }]
+                    ]
+                },
                 // photo_url: item.ImageUrl,
                 thumb_url: item.ImageUrl,
+                url: item.url,
                 description: item.plot,
                 // caption: String(item. + "\n" + ) || "none"
 
