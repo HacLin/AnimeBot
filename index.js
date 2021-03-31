@@ -195,7 +195,7 @@ Anime = async(ctx, searchitem) => {
                     title: item.Title + ':' + item.Type,
 
                     input_message_content: {
-                        message_text: '\nTitle: ' + item.Title + '\n\nType: ' + item.Type + '\nStatus: ' + item.Airing + '\nScore :' + item.Score + '\nNo.of.Episodes: ' + item.Episodes + '\n' + item.plot + '\n\n' + item.ImageUrl,
+                        message_text: '\nTitle: ' + item.Title + '\n\nType: ' + item.Type + '\nStatus: ' + item.Airing + '\nScore :' + item.Score + '\nNo.of.Episodes: ' + item.Episodes + '\n\n' + item.plot + '\n\n' + (item.ImageUrl),
                         parse_mode: "Markdown"
                     },
                     reply_markup: {
@@ -208,7 +208,7 @@ Anime = async(ctx, searchitem) => {
                     thumb_url: item.ImageUrl,
                     thumb_width: 500,
                     thumb_height: 500,
-                    url: item.ImageUrl,
+                    url: item.url,
                     description: item.plot
                         // caption: String(item. + "\n" + ) || "none"
 
