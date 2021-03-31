@@ -25,11 +25,11 @@ bot.help((ctx) => {
 //Global Variables
 var AnimeResults = [];
 // var MovieResults = [];
-var anime_name = ' ';
+
 let page = 1;
 var apicalls = [];
 apicalls = new Object();
-var reply_message = '';
+
 const Methods = ['anime', 'movie', 'undefined'];
 
 
