@@ -153,14 +153,20 @@ bot.on('inline_query', async(ctx) => {
             }
 
             InlineResults = await Anime(ctx, searchitem);
-            ctx.answerInlineQuery(InlineResults).catch((err) => console.log(err));
-            break;
+            if (InlineResults == null) {
+                console.log("Interpreting Query....")
+                break;
+            } else {
+                ctx.answerInlineQuery(InlineResults).catch((err) => console.log(err));
+                break;
+            }
         case 1:
             InlineResults = await Movie(ctx, searchitem);
             ctx.answerInlineQuery(InlineResults).catch((err) => console.log(err));
             break;
 
     }
+    bot.catch((err) => console.log(err));
 
 
 
@@ -170,46 +176,56 @@ Anime = async(ctx, searchitem) => {
 
 
     var returnvalue = await DataRequest(searchitem, page, "anime");
+    return new Promise((resolve, reject) => {
+        if (returnvalue.status == 400 || returnvalue.results == undefined) {
+            reject(returnvalue.message + '. Try again Later!');
+        } else {
 
-    if (returnvalue.status == 400) {
-        ctx.reply(returnvalue.message + '. Try again Later!');
-    } else {
+            let opcount = returnvalue.results.length;
+            let stop = opcount;
+            let start = 0;
+            let query = AnimeQueryBuilder(searchitem, "anime", page, opcount, start, stop)
+                // console.log(query);
+            let InlineResults = query.map((item, index) => {
+                // console.log(item);
 
-        let opcount = returnvalue.results.length;
-        let stop = opcount;
-        let start = 0;
-        let query = AnimeQueryBuilder(searchitem, "anime", page, opcount, start, stop)
-            // console.log(query);
-        let InlineResults = query.map((item, index) => {
-            // console.log(item);
-            return {
-                type: 'article',
-                id: String(index),
-                title: item.Title + ':' + item.Type,
-                input_message_content: {
-                    message_text: item.ImageUrl + '\nTitle: ' + item.Title + '\nType: ' + item.Type + '\nStatus: ' + item.Airing + '\nScore :' + item.Score + '\nNo.of.Episodes: ' + item.Episodes + '\nSynopsis: ' + item.plot,
-                    parse_mode: "Markdown"
-                },
-                reply_markup: {
-                    inline_keyboard: [
-                        [{ text: "Share", switch_inline_query: `${item.Type}` + " " + `${item.Title}` }],
-                        [{ text: "Visit for more info", url: `${item.url}` }]
-                    ]
-                },
-                // photo_url: item.ImageUrl,
-                thumb_url: item.ImageUrl,
-                url: item.url,
-                hide_url: true,
-                description: item.plot,
-                // caption: String(item. + "\n" + ) || "none"
+                return {
+                    type: 'article',
+                    id: String(index),
+                    title: item.Title + ':' + item.Type,
 
-            }
-        })
-        console.log(InlineResults);
-        return (InlineResults);
+                    input_message_content: {
+                        message_text: '\nTitle: ' + item.Title + '\n\nType: ' + item.Type + '\nStatus: ' + item.Airing + '\nScore :' + item.Score + '\nNo.of.Episodes: ' + item.Episodes + '\n' + item.plot + '\n\n' + item.ImageUrl,
+                        parse_mode: "Markdown"
+                    },
+                    reply_markup: {
+                        inline_keyboard: [
+                            [{ text: "Share", switch_inline_query: `${item.Type}` + " " + `${item.Title}` }],
+                            [{ text: "Visit for more info", url: `${item.url}` }]
+                        ]
+                    },
+                    // photo_url: item.ImageUrl,
+                    thumb_url: item.ImageUrl,
+                    thumb_width: 500,
+                    thumb_height: 500,
+                    url: item.ImageUrl,
+                    description: item.plot
+                        // caption: String(item. + "\n" + ) || "none"
 
-    }
+                }
+
+            })
+            console.log(InlineResults);
+            resolve(InlineResults);
+
+        }
+
+
+    })
+
+    bot.catch((err) => console.log(err));
 }
+
 
 
 bot.launch();
