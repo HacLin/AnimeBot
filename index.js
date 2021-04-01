@@ -225,7 +225,7 @@ bot.on('chosen_inline_result', async(cir) => {
         [{ text: "For more info", url: anilisturl }]
     ]
     bot.telegram.sendPhoto(cir.update.chosen_inline_result.from.id, ImageUrl, { caption: markdown, parse_mode: "Markdown", reply_markup: { inline_keyboard: keyboard } })
-    console.log("Response Sent")
+    console.log("Response Sent to " + cir.update.chosen_inline_result.from.id)
 
 
 
