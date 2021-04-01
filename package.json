@@ -10,7 +10,6 @@
     "author": "HacLin",
     "license": "ISC",
     "dependencies": {
-        "micro-bot": "^2.5.3",
         "nodemon": "^2.0.7",
         "request": "^2.88.2",
         "telegraf": "^4.2.1"
