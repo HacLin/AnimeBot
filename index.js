@@ -9,7 +9,7 @@ bot.start((ctx) => {
     // console.log(ctx.message.from);
     // console.log(ctx.message.chat);
     ctx.reply('Welcome to the AnimeBot ' + ctx.message.chat.first_name);
-    ctx.reply('<Usage>: /anime <anime-name>');
+    ctx.reply('<Usage>: @YerenEagerbot anime <anime-name>');
 })
 
 
@@ -18,7 +18,7 @@ bot.help((ctx) => {
     // console.log(ctx.message.from);
     // console.log(ctx.message.chat);
     // ctx.reply('Welcome to the MoviesBot ' + ctx.message.chat.first_name);
-    ctx.reply('<Usage>: /anime <anime-name>');
+    ctx.reply('<Usage>: @YerenEagerbot anime <anime-name>');
 })
 
 
