@@ -1,5 +1,3 @@
-// const { Composer } = require('micro-bot');
-// const bot = new Composer;
 const { Telegraf } = require('telegraf');
 const BOT_TOKEN = process.env.BOT_TOKEN
 const PORT = process.env.PORT || 3000
@@ -30,8 +28,6 @@ bot.help((ctx) => {
 //Global Variables
 var AnimeResults = [];
 var AnimeDB = [];
-// var MovieResults = [];
-
 let page = 1;
 var apicalls = [];
 apicalls = new Object();
@@ -57,8 +53,6 @@ ApiCallBuilder = (Item, page, type) => {
 //Receves data from the api
 DataRequest = async(Item, page, type) => {
     console.log("Searching for " + Item + ` page:${page}`);
-    // ctx.reply("///...Searching for " + Item + ` page:${page}` + " in the server...///");
-
     console.log("Type: " + type);
 
     var api_call = ApiCallBuilder(Item, page, type)
@@ -67,12 +61,11 @@ DataRequest = async(Item, page, type) => {
         method: "GET",
         url: api_call
     }
+
     return new Promise(await
         function(resolve, reject) {
 
             request(url_options, (error, response, body) => {
-                // console.log(response);
-
                 if (!error) {
                     var res = JSON.parse(body);
                     console.log("Data Received");
@@ -86,17 +79,12 @@ DataRequest = async(Item, page, type) => {
                     } else {
                         AnimeResults.push(temp);
                     }
-                    // if (ret == "movie")
-                    //     MovieResults.push(temp)
-                    console.log("Data pushed into " + ret + "DB");
+                    console.log("Data pushed into " + ret + "Results");
                     resolve(res);
-                    // console.log(res);
                     if (res.status == 400) {
                         reject(res.message);
                     }
 
-                    // console.log(Results);
-                    // console.log("Not Returned");
                 }
             })
         })
@@ -105,14 +93,13 @@ DataRequest = async(Item, page, type) => {
 }
 
 
-//Globalise the function
+//Builds Inline Query
 AnimeQueryBuilder = (Item, type, start, stop) => {
     var query = [];
     var choices;
     let cbdata = type + '-' + Item;
     let opt = AnimeResults.findIndex(x => x.callbackdata == cbdata)
-        // let Type = type;
-        // let Items = Item;
+
     console.log("Searching for " + Item + " as " + type + " in the Results");
     for (let i = start; i < stop; i++) {
         choices = new Object();
@@ -133,10 +120,7 @@ AnimeQueryBuilder = (Item, type, start, stop) => {
         query.push(choices);
 
     }
-
-
     console.log("Query Builded :\n");
-    // console.log(query.map((x) => console.log(x)) + '\n');
     return (query);
 }
 
@@ -180,8 +164,6 @@ bot.on('inline_query', async(ctx) => {
 
     }
     bot.catch((err) => console.log(err));
-    // ctx.next();
-
 
 })
 
@@ -191,9 +173,9 @@ bot.on('inline_query', async(ctx) => {
 
 
 bot.on('chosen_inline_result', async(cir) => {
-    // console.log(cir)
+
     let id = cir.update.chosen_inline_result.result_id;
-    console.log("ID : " + id);
+    console.log("Result ID : " + id);
     let Query = cir.update.chosen_inline_result.query;
     console.log(`Executing the user query: ${Query}`)
     console.log("Chat ID: " + cir.update.chosen_inline_result.from.id)
@@ -204,8 +186,9 @@ bot.on('chosen_inline_result', async(cir) => {
     let index = AnimeResults.findIndex(x => x.callbackdata == cbdata)
     let malid = AnimeResults[index].results.results[id].mal_id
     let Data = await DataRequest(malid, page, method)
-        // console.log(Data);
 
+    //Building Response
+    console.log("Started Building Response...")
     let title_eng = Data.title_english
     let title_jap = Data.title_japanese
     let type = Data.type
@@ -222,7 +205,6 @@ bot.on('chosen_inline_result', async(cir) => {
     for (let j = 0; j < 300; j++) {
         plot.push(synop[j])
     }
-    console.log(plot.join(""))
     plot = plot.join("")
     let ImageUrl = Data.image_url
     let anilisturl = Data.url
@@ -243,8 +225,7 @@ bot.on('chosen_inline_result', async(cir) => {
         [{ text: "For more info", url: anilisturl }]
     ]
     bot.telegram.sendPhoto(cir.update.chosen_inline_result.from.id, ImageUrl, { caption: markdown, parse_mode: "Markdown", reply_markup: { inline_keyboard: keyboard } })
-
-
+    console.log("Response Sent")
 
 
 
@@ -263,30 +244,25 @@ Anime = async(ctx, searchitem) => {
             let stop = opcount;
             let start = 0;
             let query = AnimeQueryBuilder(searchitem, "anime", start, stop)
-                // console.log(query);
+            console.log("Started Building InlineResults...")
             let InlineResults = query.map((item, index) => {
-                    // console.log(item);
-                    return {
-                        type: 'article',
-                        id: String(index),
-                        title: item.Title + ':' + item.Type,
+                return {
+                    type: 'article',
+                    id: String(index),
+                    title: item.Title + ':' + item.Type,
+                    input_message_content: {
+                        message_text: '\nResults for ' + item.Title,
+                        parse_mode: "Markdown"
+                    },
+                    thumb_url: item.ImageUrl,
+                    thumb_width: 500,
+                    thumb_height: 500,
+                    url: item.url,
+                    description: item.plot
+                }
 
-                        input_message_content: {
-                            message_text: '\nResults for ' + item.Title,
-                            // message_text: '\nTitle: ' + item.Title + '\n\nType: ' + item.Type + '\nStatus: ' + item.Airing + '\nScore :' + item.Score + '\nNo.of.Episodes: ' + item.Episodes + '\n\n' + item.plot + '\n\n' + (item.ImageUrl),
-                            parse_mode: "Markdown"
-                        },
-                        thumb_url: item.ImageUrl,
-                        thumb_width: 500,
-                        thumb_height: 500,
-                        url: item.url,
-                        description: item.plot
-                            // caption: String(item. + "\n" + ) || "none"
-
-                    }
-
-                })
-                // console.log(InlineResults);
+            })
+            console.log("Builded InlineResults");
             bot.catch((err) => console.log(err));
             resolve(InlineResults);
 
@@ -301,4 +277,3 @@ Anime = async(ctx, searchitem) => {
 
 
 bot.launch();
-// module.exports = bot;
