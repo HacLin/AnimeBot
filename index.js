@@ -5,7 +5,7 @@ const URL = process.env.BOT_DOMAIN
 const bot = new Telegraf(BOT_TOKEN);
 const request = require('request');
 bot.telegram.setWebhook(`${URL}/bot${BOT_TOKEN}`);
-bot.telegram.startWebhook(`/bot${BOT_TOKEN}`, null, PORT)
+bot.startWebhook(`/bot${BOT_TOKEN}`, null, PORT)
 
 bot.start((ctx) => {
 
