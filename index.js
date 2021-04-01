@@ -24,6 +24,7 @@ bot.help((ctx) => {
 
 //Global Variables
 var AnimeResults = [];
+var AnimeDB = [];
 // var MovieResults = [];
 
 let page = 1;
@@ -37,7 +38,9 @@ const Methods = ['anime', 'movie', 'undefined'];
 ApiCallBuilder = (Item, page, type) => {
 
     apicalls.anime = `https://api.jikan.moe/v3/search/anime?q=${Item}&page=${page}`
-
+    if (Number.isInteger(Item)) {
+        apicalls.anime = `https://api.jikan.moe/v3/anime/${Item}`
+    }
     url = apicalls[type]
     console.log("Builded API Call: " + url);
     return (url);
@@ -73,8 +76,11 @@ DataRequest = async(Item, page, type) => {
                     temp.loaded = 0;
                     temp.callbackdata = type + '-' + Item
                     let ret = type;
-                    if (ret == "anime")
+                    if (ret == "anime" && Number.isInteger(Item)) {
+                        AnimeDB.push(temp);
+                    } else {
                         AnimeResults.push(temp);
+                    }
                     // if (ret == "movie")
                     //     MovieResults.push(temp)
                     console.log("Data pushed into " + ret + "DB");
@@ -95,7 +101,7 @@ DataRequest = async(Item, page, type) => {
 
 
 //Globalise the function
-AnimeQueryBuilder = (Item, type, pageno, opcount, start, stop) => {
+AnimeQueryBuilder = (Item, type, start, stop) => {
     var query = [];
     var choices;
     let cbdata = type + '-' + Item;
@@ -120,6 +126,7 @@ AnimeQueryBuilder = (Item, type, pageno, opcount, start, stop) => {
         choices.url = AnimeResults[opt].results.results[i].url;
         choices.plot = AnimeResults[opt].results.results[i].synopsis;
         query.push(choices);
+
     }
 
 
@@ -157,7 +164,8 @@ bot.on('inline_query', async(ctx) => {
                 console.log("Interpreting Query....")
                 break;
             } else {
-                ctx.answerInlineQuery(InlineResults).catch((err) => console.log(err));
+
+                ctx.answerInlineQuery(InlineResults, 60).catch((err) => console.log(err));
                 break;
             }
         case 1:
@@ -167,6 +175,32 @@ bot.on('inline_query', async(ctx) => {
 
     }
     bot.catch((err) => console.log(err));
+
+
+
+})
+
+
+
+
+
+
+bot.on('chosen_inline_result', async(cir) => {
+    // console.log(cir)
+    let id = cir.update.chosen_inline_result.result_id;
+    console.log("ID : " + id);
+    let Query = cir.update.chosen_inline_result.query;
+    console.log(`Executing the user query: ${Query}`)
+    console.log("Chat ID: " + cir.update.chosen_inline_result.from.id)
+    let search = Query.split(" ");
+    let method = search[0];
+    let searchitem = search[1];
+    let cbdata = method + '-' + searchitem;
+    let index = AnimeResults.findIndex(x => x.callbackdata == cbdata)
+    let malid = AnimeResults[index].results.results[id].mal_id
+    let Data = await DataRequest(malid, page, method)
+    console.log(Data);
+
 
 
 
@@ -184,38 +218,32 @@ Anime = async(ctx, searchitem) => {
             let opcount = returnvalue.results.length;
             let stop = opcount;
             let start = 0;
-            let query = AnimeQueryBuilder(searchitem, "anime", page, opcount, start, stop)
+            let query = AnimeQueryBuilder(searchitem, "anime", start, stop)
                 // console.log(query);
             let InlineResults = query.map((item, index) => {
-                // console.log(item);
+                    // console.log(item);
+                    return {
+                        type: 'article',
+                        id: String(index),
+                        title: item.Title + ':' + item.Type,
 
-                return {
-                    type: 'article',
-                    id: String(index),
-                    title: item.Title + ':' + item.Type,
+                        input_message_content: {
+                            message_text: '\nResults for ' + item.Title,
+                            // message_text: '\nTitle: ' + item.Title + '\n\nType: ' + item.Type + '\nStatus: ' + item.Airing + '\nScore :' + item.Score + '\nNo.of.Episodes: ' + item.Episodes + '\n\n' + item.plot + '\n\n' + (item.ImageUrl),
+                            parse_mode: "Markdown"
+                        },
+                        thumb_url: item.ImageUrl,
+                        thumb_width: 500,
+                        thumb_height: 500,
+                        url: item.url,
+                        description: item.plot
+                            // caption: String(item. + "\n" + ) || "none"
 
-                    input_message_content: {
-                        message_text: '\nTitle: ' + item.Title + '\n\nType: ' + item.Type + '\nStatus: ' + item.Airing + '\nScore :' + item.Score + '\nNo.of.Episodes: ' + item.Episodes + '\n\n' + item.plot + '\n\n' + (item.ImageUrl),
-                        parse_mode: "Markdown"
-                    },
-                    reply_markup: {
-                        inline_keyboard: [
-                            [{ text: "Share", switch_inline_query: `${item.Type}` + " " + `${item.Title}` }],
-                            [{ text: "Visit for more info", url: `${item.url}` }]
-                        ]
-                    },
-                    // photo_url: item.ImageUrl,
-                    thumb_url: item.ImageUrl,
-                    thumb_width: 500,
-                    thumb_height: 500,
-                    url: item.url,
-                    description: item.plot
-                        // caption: String(item. + "\n" + ) || "none"
+                    }
 
-                }
-
-            })
-            console.log(InlineResults);
+                })
+                // console.log(InlineResults);
+            bot.catch((err) => console.log(err));
             resolve(InlineResults);
 
         }
@@ -223,7 +251,7 @@ Anime = async(ctx, searchitem) => {
 
     })
 
-    bot.catch((err) => console.log(err));
+
 }
 
 
