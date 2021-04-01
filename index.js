@@ -1,6 +1,7 @@
 // const { Composer } = require('micro-bot');
 // const bot = new Composer;
 const { Telegraf } = require('telegraf');
+let BOT_TOKEN = process.env.BOT_TOKEN
 const bot = new Telegraf(BOT_TOKEN);
 const request = require('request');
 
