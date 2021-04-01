@@ -1,7 +1,7 @@
 // const { Composer } = require('micro-bot');
 // const bot = new Composer;
 const { Telegraf } = require('telegraf');
-const bot = new Telegraf("1725572839:AAFvTQVM0x5AhZzTQ4jk6CnnPd5WU6u5G3E");
+const bot = new Telegraf(BOT_TOKEN);
 const request = require('request');
 
 bot.start((ctx) => {
