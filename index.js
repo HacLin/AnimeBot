@@ -230,7 +230,9 @@ bot.on('chosen_inline_result', async(cir) => {
         bot.telegram.sendPhoto(cir.update.chosen_inline_result.from.id, ImageUrl, { caption: markdown, reply_markup: { inline_keyboard: keyboard } })
         update = await bot.telegram.getUpdates()
     }
-    // console.log(update[1].message.from, update[1].message.message_id, update[1].message.chat, update[1].message.via_bot)
+    console.log(update)
+    console.log(update[1].message)
+        // console.log(update[1].message.from, update[1].message.message_id, update[1].message.chat, update[1].message.via_bot)
     bot.telegram.sendPhoto(update[1].message.chat.id, ImageUrl, { caption: markdown, reply_markup: { inline_keyboard: keyboard } })
     console.log("Response sent to " + update[1].message.chat.title);
 
