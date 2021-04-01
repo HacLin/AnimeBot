@@ -175,7 +175,7 @@ bot.on('inline_query', async(ctx) => {
 
     }
     bot.catch((err) => console.log(err));
-
+    // ctx.next();
 
 
 })
@@ -199,7 +199,46 @@ bot.on('chosen_inline_result', async(cir) => {
     let index = AnimeResults.findIndex(x => x.callbackdata == cbdata)
     let malid = AnimeResults[index].results.results[id].mal_id
     let Data = await DataRequest(malid, page, method)
-    console.log(Data);
+        // console.log(Data);
+
+    let title_eng = Data.title_english
+    let title_jap = Data.title_japanese
+    let type = Data.type
+    let genre = [];
+    Data.genres.map((x) => { genre.push(x.name) })
+    let episodes = Data.episodes
+    let status = Data.status
+    let aired = Data.string
+    let duration = Data.duration
+    let rating = Data.rating
+    let score = Data.score
+    let plot = [];
+    let synop = Data.synopsis.split("");
+    for (let j = 0; j < 300; j++) {
+        plot.push(synop[j])
+    }
+    console.log(plot.join(""))
+    plot = plot.join("")
+    let ImageUrl = Data.image_url
+    let anilisturl = Data.url
+    let trailerurl = Data.trailer_url
+    let markdown = `
+        **Title : ${title_eng}(${title_jap})**
+        \nType  : ${type}
+        \nGenre : ${genre.join(",")}
+        \nNo.of.Episodes : ${episodes}
+        \nStatus: ${status}
+        \nAiring: ${aired}
+        \nDuration:${duration}
+        \nRating: ${rating}
+        \nScore:${score}
+        \n\n${plot}\n`
+    let keyboard = [
+        [{ text: "Trailer", url: trailerurl }],
+        [{ text: "For more info", url: anilisturl }]
+    ]
+    bot.telegram.sendPhoto(cir.update.chosen_inline_result.from.id, ImageUrl, { caption: markdown, parse_mode: "Markdown", reply_markup: { inline_keyboard: keyboard } })
+
 
 
 
