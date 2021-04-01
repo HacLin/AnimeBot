@@ -224,10 +224,11 @@ bot.on('chosen_inline_result', async(cir) => {
         [{ text: "Trailer", url: trailerurl }],
         [{ text: "For more info", url: anilisturl }]
     ]
-    bot.telegram.sendPhoto(cir.update.chosen_inline_result.from.id, ImageUrl, { caption: markdown, parse_mode: "Markdown", reply_markup: { inline_keyboard: keyboard } })
-    console.log("Response Sent to " + cir.update.chosen_inline_result.from.id)
-
-
+    bot.telegram.sendPhoto(cir.update.chosen_inline_result.from.id, ImageUrl, { caption: markdown, reply_markup: { inline_keyboard: keyboard } })
+    let update = await bot.telegram.getUpdates()
+    console.log(update[1].message.from, update[1].message.message_id, update[1].message.chat, update[1].message.via_bot)
+    bot.telegram.sendPhoto(update[1].message.chat.id, ImageUrl, { caption: markdown, reply_markup: { inline_keyboard: keyboard } })
+    console.log("Response sent to " + update.message.chat.username);
 
 })
 
