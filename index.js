@@ -219,7 +219,7 @@ bot.on('chosen_inline_result', async(cir) => {
         \nDuration:${duration}
         \nRating: ${rating}
         \nScore:${score}
-        \n\n${plot}\n`
+        \n\n${plot}\n\n\tvia@jikon\n\t#anime`
     let keyboard = [
         [{ text: "Trailer", url: trailerurl }],
         [{ text: "For more info", url: anilisturl }]
@@ -228,7 +228,7 @@ bot.on('chosen_inline_result', async(cir) => {
     let update = await bot.telegram.getUpdates()
     console.log(update[1].message.from, update[1].message.message_id, update[1].message.chat, update[1].message.via_bot)
     bot.telegram.sendPhoto(update[1].message.chat.id, ImageUrl, { caption: markdown, reply_markup: { inline_keyboard: keyboard } })
-    console.log("Response sent to " + update.message.chat.username);
+    console.log("Response sent to " + update[1].message.chat.title);
 
 })
 
