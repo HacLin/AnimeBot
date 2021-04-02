@@ -219,7 +219,7 @@ bot.on('chosen_inline_result', async(cir) => {
         \nDuration:${duration}
         \nRating: ${rating}
         \nScore:${score}
-        \n\n${plot}\n\n\tvia@jikon\n\t#anime`
+        \n\n${plot}...\n\n\tvia@jikon\n\t#anime`
     let keyboard = [
         [{ text: "Trailer", url: trailerurl }],
         [{ text: "For more info", url: anilisturl }]
@@ -229,7 +229,7 @@ bot.on('chosen_inline_result', async(cir) => {
     console.log(update)
     let sentid = update.map((item, index) => { if (item.hasOwnProperty('message')) { return index } })
     console.log(sentid);
-    bot.telegram.sendPhoto(update[sentid].message.chat.id, ImageUrl, { caption: markdown, reply_markup: { inline_keyboard: keyboard } })
+    bot.telegram.sendPhoto(update[sentid[1]].message.chat.id, ImageUrl, { caption: markdown, reply_markup: { inline_keyboard: keyboard } })
     console.log("Response sent to " + update[10].message.chat.title);
 
 })
