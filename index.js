@@ -228,10 +228,12 @@ bot.on('chosen_inline_result', async(cir) => {
     let update = await bot.telegram.getUpdates()
     console.log(update)
     let sentid;
-    update.forEach((item, index) => { if (item.hasOwnProperty('message')) { sentid = update[index].message.chat.id } })
+    let respondedto;
+    update.forEach((item, index) => { if (item.hasOwnProperty('message')) { sentid = update[index].message.chat.id;
+            respondedto = update[index].message.chat.title } })
     console.log(sentid);
     bot.telegram.sendPhoto(sentid, ImageUrl, { caption: markdown, reply_markup: { inline_keyboard: keyboard } })
-    console.log("Response sent to " + update[10].message.chat.title);
+    console.log("Response sent to " + respondedto);
 
 })
 
