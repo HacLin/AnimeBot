@@ -226,14 +226,10 @@ bot.on('chosen_inline_result', async(cir) => {
     ]
     bot.telegram.sendPhoto(cir.update.chosen_inline_result.from.id, ImageUrl, { caption: markdown, reply_markup: { inline_keyboard: keyboard } })
     let update = await bot.telegram.getUpdates()
-    if (update[0] == undefined) {
-        bot.telegram.sendPhoto(cir.update.chosen_inline_result.from.id, ImageUrl, { caption: markdown, reply_markup: { inline_keyboard: keyboard } })
-        update = await bot.telegram.getUpdates()
-    }
     console.log(update)
-    console.log(update[0].message)
-        // console.log(update[1].message.from, update[1].message.message_id, update[1].message.chat, update[1].message.via_bot)
-    bot.telegram.sendPhoto(update[0].message.chat.id, ImageUrl, { caption: markdown, reply_markup: { inline_keyboard: keyboard } })
+    let sentid = update.map((item, index) => { if (item.hasOwnProperty('message')) { return index } })
+    console.log(sentid);
+    bot.telegram.sendPhoto(update[sentid].message.chat.id, ImageUrl, { caption: markdown, reply_markup: { inline_keyboard: keyboard } })
     console.log("Response sent to " + update[10].message.chat.title);
 
 })
