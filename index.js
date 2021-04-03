@@ -126,8 +126,6 @@ AnimeQueryBuilder = (Item, type, start, stop) => {
 
 
 
-
-
 bot.on('inline_query', async(ctx) => {
     let Query = ctx.update.inline_query.query;
     console.log(`Executing the user query: ${Query}`)
