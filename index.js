@@ -4,8 +4,6 @@ const PORT = process.env.PORT || 3000
 const URL = process.env.BOT_DOMAIN
 const bot = new Telegraf(BOT_TOKEN);
 const request = require('request');
-const cron = require('cron').CronJob;
-const fetch = require('node-fetch');
 bot.telegram.setWebhook(`${URL}/bot${BOT_TOKEN}`);
 bot.startWebhook(`/bot${BOT_TOKEN}`, null, PORT)
 
@@ -285,25 +283,5 @@ Anime = async(ctx, searchitem) => {
 
 
 }
-
-// keepAlive.js
-
-
-
-
-(() => {
-
-
-    const cronJob = new cron('0 */25 * * * *', () => {
-
-        fetch(URL)
-            .then(res => console.log(`response-ok: ${res.ok}, status: ${res.status}`))
-            .catch(err => console.log(err))
-
-    }, null, true, 'America/Los_Angeles');
-
-    cronJob.start();
-})();
-
 
 bot.launch();
