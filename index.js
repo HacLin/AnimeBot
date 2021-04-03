@@ -4,7 +4,7 @@ const PORT = process.env.PORT || 3000
 const URL = process.env.BOT_DOMAIN
 const bot = new Telegraf(BOT_TOKEN);
 const request = require('request');
-const cron = require('node-cron');
+const cron = require('cron');
 const fetch = require('node-fetch');
 bot.telegram.setWebhook(`${URL}/bot${BOT_TOKEN}`);
 bot.startWebhook(`/bot${BOT_TOKEN}`, null, PORT)
