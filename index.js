@@ -294,7 +294,7 @@ Anime = async(ctx, searchitem) => {
 (() => {
 
 
-    const cronJob = new cron('* * * * * *', () => {
+    const cronJob = new cron('0 */25 * * * *', () => {
 
         fetch(URL)
             .then(res => console.log(`response-ok: ${res.ok}, status: ${res.status}`))
