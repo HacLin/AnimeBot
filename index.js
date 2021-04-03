@@ -4,6 +4,8 @@ const PORT = process.env.PORT || 3000
 const URL = process.env.BOT_DOMAIN
 const bot = new Telegraf(BOT_TOKEN);
 const request = require('request');
+const cron = require('node-cron');
+const fetch = require('node-fetch');
 bot.telegram.setWebhook(`${URL}/bot${BOT_TOKEN}`);
 bot.startWebhook(`/bot${BOT_TOKEN}`, null, PORT)
 
@@ -229,8 +231,12 @@ bot.on('chosen_inline_result', async(cir) => {
     console.log(update)
     let sentid;
     let respondedto;
-    update.forEach((item, index) => { if (item.hasOwnProperty('message')) { sentid = update[index].message.chat.id;
-            respondedto = update[index].message.chat.title } })
+    update.forEach((item, index) => {
+        if (item.hasOwnProperty('message')) {
+            sentid = update[index].message.chat.id;
+            respondedto = update[index].message.chat.title
+        }
+    })
     console.log(sentid);
     bot.telegram.sendPhoto(sentid, ImageUrl, { caption: markdown, reply_markup: { inline_keyboard: keyboard } })
     console.log("Response sent to " + respondedto);
@@ -280,6 +286,24 @@ Anime = async(ctx, searchitem) => {
 
 }
 
+// keepAlive.js
+
+
+
+
+(() => {
+
+
+    const cronJob = cron.CronJob('0 */25 * * * *', () => {
+
+        fetch(URL)
+            .then(res => console.log(`response-ok: ${res.ok}, status: ${res.status}`))
+            .catch(err => console.log(err))
+
+    });
+
+    cronJob.start();
+})();
 
 
 bot.launch();
