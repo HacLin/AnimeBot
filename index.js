@@ -6,6 +6,8 @@ const bot = new Telegraf(BOT_TOKEN);
 const request = require('request');
 bot.telegram.setWebhook(`${URL}/bot${BOT_TOKEN}`);
 bot.startWebhook(`/bot${BOT_TOKEN}`, null, PORT)
+require('heroku-self-ping').default(URL);
+
 
 bot.start((ctx) => {
 

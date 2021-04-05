@@ -10,6 +10,7 @@
     "author": "HacLin",
     "license": "ISC",
     "dependencies": {
+        "heroku-self-ping": "^2.0.1",
         "nodemon": "^2.0.7",
         "request": "^2.88.2",
         "telegraf": "^4.2.1"
